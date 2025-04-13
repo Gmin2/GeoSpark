@@ -1139,39 +1139,39 @@ class FetchRequest {
             req = await this.preflightFunc(req);
         }
         const resp = await this.getUrlFunc(req, checkSignal(_request.#signal));
-        let response = new FetchResponse(resp.statusCode, resp.statusMessage, resp.headers, resp.body, _request);
-        if (response.statusCode === 301 || response.statusCode === 302) {
+        let response1 = new FetchResponse(resp.statusCode, resp.statusMessage, resp.headers, resp.body, _request);
+        if (response1.statusCode === 301 || response1.statusCode === 302) {
             try {
-                const location = response.headers.location || "";
-                return req.redirect(location).#send(attempt + 1, expires, 0, _request, response);
-            } catch (error) {}
-            return response;
-        } else if (response.statusCode === 429) {
-            if (this.retryFunc == null || await this.retryFunc(req, response, attempt)) {
-                const retryAfter = response.headers["retry-after"];
-                let delay = this.#throttle.slotInterval * Math.trunc(Math.random() * Math.pow(2, attempt));
+                const location = response1.headers.location || "";
+                return req.redirect(location).#send(attempt + 1, expires, 0, _request, response1);
+            } catch (error1) {}
+            return response1;
+        } else if (response1.statusCode === 429) {
+            if (this.retryFunc == null || await this.retryFunc(req, response1, attempt)) {
+                const retryAfter = response1.headers["retry-after"];
+                let delay1 = this.#throttle.slotInterval * Math.trunc(Math.random() * Math.pow(2, attempt));
                 if (typeof retryAfter === "string" && retryAfter.match(/^[1-9][0-9]*$/)) {
-                    delay = parseInt(retryAfter);
+                    delay1 = parseInt(retryAfter);
                 }
-                return req.clone().#send(attempt + 1, expires, delay, _request, response);
+                return req.clone().#send(attempt + 1, expires, delay1, _request, response1);
             }
         }
         if (this.processFunc) {
             checkSignal(_request.#signal);
             try {
-                response = await this.processFunc(req, response);
-            } catch (error) {
-                if (error.throttle == null || typeof error.stall !== "number") {
-                    response.makeServerError("error in post-processing function", error).assertOk();
+                response1 = await this.processFunc(req, response1);
+            } catch (error2) {
+                if (error2.throttle == null || typeof error2.stall !== "number") {
+                    response1.makeServerError("error in post-processing function", error2).assertOk();
                 }
-                let delay = this.#throttle.slotInterval * Math.trunc(Math.random() * Math.pow(2, attempt));
-                if (error.stall >= 0) {
-                    delay = error.stall;
+                let delay2 = this.#throttle.slotInterval * Math.trunc(Math.random() * Math.pow(2, attempt));
+                if (error2.stall >= 0) {
+                    delay2 = error2.stall;
                 }
-                return req.clone().#send(attempt + 1, expires, delay, _request, response);
+                return req.clone().#send(attempt + 1, expires, delay2, _request, response1);
             }
         }
-        return response;
+        return response1;
     }
     send() {
         assert1(this.#signal == null, "request already sent", "UNSUPPORTED_OPERATION", {
@@ -1388,7 +1388,7 @@ class FetchResponse {
         if (this.ok()) {
             return;
         }
-        let { message, error } = this.#error;
+        let { message , error  } = this.#error;
         if (message === "") {
             message = `server response ${this.statusCode} ${this.statusMessage}`;
         }
@@ -1456,13 +1456,13 @@ function checkValue(val, format, safeOp) {
             val = -fromTwos(mask(-val, width), width);
         }
     } else {
-        const limit = BN_1$4 << width;
-        assert1(safeOp == null || val >= 0 && val < limit, "overflow", "NUMERIC_FAULT", {
+        const limit1 = BN_1$4 << width;
+        assert1(safeOp == null || val >= 0 && val < limit1, "overflow", "NUMERIC_FAULT", {
             operation: safeOp,
             fault: "overflow",
             value: val
         });
-        val = (val % limit + limit) % limit & limit - BN_1$4;
+        val = (val % limit1 + limit1) % limit1 & limit1 - BN_1$4;
     }
     return val;
 }
@@ -1566,9 +1566,9 @@ class FixedNumber {
         val = checkValue(val, this.#format, safeOp);
         return new FixedNumber(_guard$5, val, this.#format);
     }
-    #add(o, safeOp) {
+    #add(o, safeOp1) {
         this.#checkFormat(o);
-        return this.#checkValue(this.#val + o.#val, safeOp);
+        return this.#checkValue(this.#val + o.#val, safeOp1);
     }
     addUnsafe(other) {
         return this.#add(other);
@@ -1576,9 +1576,9 @@ class FixedNumber {
     add(other) {
         return this.#add(other, "add");
     }
-    #sub(o, safeOp) {
-        this.#checkFormat(o);
-        return this.#checkValue(this.#val - o.#val, safeOp);
+    #sub(o1, safeOp2) {
+        this.#checkFormat(o1);
+        return this.#checkValue(this.#val - o1.#val, safeOp2);
     }
     subUnsafe(other) {
         return this.#sub(other);
@@ -1586,9 +1586,9 @@ class FixedNumber {
     sub(other) {
         return this.#sub(other, "sub");
     }
-    #mul(o, safeOp) {
-        this.#checkFormat(o);
-        return this.#checkValue(this.#val * o.#val / this.#tens, safeOp);
+    #mul(o2, safeOp3) {
+        this.#checkFormat(o2);
+        return this.#checkValue(this.#val * o2.#val / this.#tens, safeOp3);
     }
     mulUnsafe(other) {
         return this.#mul(other);
@@ -1606,14 +1606,14 @@ class FixedNumber {
         });
         return this.#checkValue(value / this.#tens, "mulSignal");
     }
-    #div(o, safeOp) {
-        assert1(o.#val !== BN_0$8, "division by zero", "NUMERIC_FAULT", {
+    #div(o3, safeOp4) {
+        assert1(o3.#val !== BN_0$8, "division by zero", "NUMERIC_FAULT", {
             operation: "div",
             fault: "divide-by-zero",
             value: this
         });
-        this.#checkFormat(o);
-        return this.#checkValue(this.#val * this.#tens / o.#val, safeOp);
+        this.#checkFormat(o3);
+        return this.#checkValue(this.#val * this.#tens / o3.#val, safeOp4);
     }
     divUnsafe(other) {
         return this.#div(other);
@@ -1811,26 +1811,26 @@ function _decode(data, offset) {
         checkOffset(offset + 1 + lengthLength + length);
         return _decodeChildren(data, offset, offset + 1 + lengthLength, lengthLength + length);
     } else if (data[offset] >= 192) {
-        const length = data[offset] - 192;
-        checkOffset(offset + 1 + length);
-        return _decodeChildren(data, offset, offset + 1, length);
+        const length1 = data[offset] - 192;
+        checkOffset(offset + 1 + length1);
+        return _decodeChildren(data, offset, offset + 1, length1);
     } else if (data[offset] >= 184) {
-        const lengthLength = data[offset] - 183;
-        checkOffset(offset + 1 + lengthLength);
-        const length = unarrayifyInteger(data, offset + 1, lengthLength);
-        checkOffset(offset + 1 + lengthLength + length);
-        const result = hexlify(data.slice(offset + 1 + lengthLength, offset + 1 + lengthLength + length));
+        const lengthLength1 = data[offset] - 183;
+        checkOffset(offset + 1 + lengthLength1);
+        const length2 = unarrayifyInteger(data, offset + 1, lengthLength1);
+        checkOffset(offset + 1 + lengthLength1 + length2);
+        const result = hexlify(data.slice(offset + 1 + lengthLength1, offset + 1 + lengthLength1 + length2));
         return {
-            consumed: 1 + lengthLength + length,
+            consumed: 1 + lengthLength1 + length2,
             result: result
         };
     } else if (data[offset] >= 128) {
-        const length = data[offset] - 128;
-        checkOffset(offset + 1 + length);
-        const result = hexlify(data.slice(offset + 1, offset + 1 + length));
+        const length3 = data[offset] - 128;
+        checkOffset(offset + 1 + length3);
+        const result1 = hexlify(data.slice(offset + 1, offset + 1 + length3));
         return {
-            consumed: 1 + length,
-            result: result
+            consumed: 1 + length3,
+            result: result1
         };
     }
     return {
@@ -1873,9 +1873,9 @@ function _encode(object) {
         data.unshift(128 + data.length);
         return data;
     }
-    const length = arrayifyInteger(data.length);
-    length.unshift(183 + length.length);
-    return length.concat(data);
+    const length1 = arrayifyInteger(data.length);
+    length1.unshift(183 + length1.length);
+    return length1.concat(data);
 }
 const nibbles = "0123456789abcdef";
 function encodeRlp(object) {
@@ -2429,7 +2429,7 @@ class HMAC extends Hash {
         for(let i = 0; i < pad.length; i++)pad[i] ^= 54;
         this.iHash.update(pad);
         this.oHash = hash$1.create();
-        for(let i = 0; i < pad.length; i++)pad[i] ^= 54 ^ 92;
+        for(let i1 = 0; i1 < pad.length; i1++)pad[i1] ^= 54 ^ 92;
         this.oHash.update(pad);
         pad.fill(0);
     }
@@ -2454,7 +2454,7 @@ class HMAC extends Hash {
     }
     _cloneInto(to) {
         to || (to = Object.create(Object.getPrototypeOf(this), {}));
-        const { oHash, iHash, finished, destroyed, blockLen, outputLen } = this;
+        const { oHash , iHash , finished , destroyed , blockLen , outputLen  } = this;
         to = to;
         to.finished = finished;
         to.destroyed = destroyed;
@@ -2478,7 +2478,7 @@ function pbkdf2Init(hash$1, _password, _salt, _opts) {
         dkLen: 32,
         asyncTick: 10
     }, _opts);
-    const { c, dkLen, asyncTick } = opts;
+    const { c , dkLen , asyncTick  } = opts;
     number(c);
     number(dkLen);
     number(asyncTick);
@@ -2505,7 +2505,7 @@ function pbkdf2Output(PRF, PRFSalt, DK, prfW, u) {
     return DK;
 }
 function pbkdf2$1(hash, password, salt, opts) {
-    const { c, dkLen, DK, PRF, PRFSalt } = pbkdf2Init(hash, password, salt, opts);
+    const { c , dkLen , DK , PRF , PRFSalt  } = pbkdf2Init(hash, password, salt, opts);
     let prfW;
     const arr = new Uint8Array(4);
     const view = createView(arr);
@@ -2549,7 +2549,7 @@ class SHA2 extends Hash {
     }
     update(data) {
         exists(this);
-        const { view, buffer, blockLen } = this;
+        const { view , buffer , blockLen  } = this;
         data = toBytes(data);
         const len = data.length;
         for(let pos = 0; pos < len;){
@@ -2575,8 +2575,8 @@ class SHA2 extends Hash {
         exists(this);
         output(out, this);
         this.finished = true;
-        const { buffer, view, blockLen, isLE } = this;
-        let { pos } = this;
+        const { buffer , view , blockLen , isLE  } = this;
+        let { pos  } = this;
         buffer[pos++] = 128;
         this.buffer.subarray(pos).fill(0);
         if (this.padOffset > blockLen - pos) {
@@ -2592,10 +2592,10 @@ class SHA2 extends Hash {
         const outLen = len / 4;
         const state = this.get();
         if (outLen > state.length) throw new Error("_sha2: outputLen bigger than state");
-        for(let i = 0; i < outLen; i++)oview.setUint32(4 * i, state[i], isLE);
+        for(let i1 = 0; i1 < outLen; i1++)oview.setUint32(4 * i1, state[i1], isLE);
     }
     digest() {
-        const { buffer, outputLen } = this;
+        const { buffer , outputLen  } = this;
         this.digestInto(buffer);
         const res = buffer.slice(0, outputLen);
         this.destroy();
@@ -2604,7 +2604,7 @@ class SHA2 extends Hash {
     _cloneInto(to) {
         to || (to = new this.constructor);
         to.set(...this.get());
-        const { blockLen, buffer, length, finished, destroyed, pos } = this;
+        const { blockLen , buffer , length , finished , destroyed , pos  } = this;
         to.length = length;
         to.pos = pos;
         to.finished = finished;
@@ -2705,7 +2705,7 @@ class SHA256 extends SHA2 {
         this.H = IV[7] | 0;
     }
     get() {
-        const { A, B, C, D, E, F, G, H } = this;
+        const { A , B , C , D , E , F , G , H  } = this;
         return [
             A,
             B,
@@ -2729,17 +2729,17 @@ class SHA256 extends SHA2 {
     }
     process(view, offset) {
         for(let i = 0; i < 16; i++, offset += 4)SHA256_W[i] = view.getUint32(offset, false);
-        for(let i = 16; i < 64; i++){
-            const W15 = SHA256_W[i - 15];
-            const W2 = SHA256_W[i - 2];
+        for(let i1 = 16; i1 < 64; i1++){
+            const W15 = SHA256_W[i1 - 15];
+            const W2 = SHA256_W[i1 - 2];
             const s0 = rotr(W15, 7) ^ rotr(W15, 18) ^ W15 >>> 3;
             const s1 = rotr(W2, 17) ^ rotr(W2, 19) ^ W2 >>> 10;
-            SHA256_W[i] = s1 + SHA256_W[i - 7] + s0 + SHA256_W[i - 16] | 0;
+            SHA256_W[i1] = s1 + SHA256_W[i1 - 7] + s0 + SHA256_W[i1 - 16] | 0;
         }
-        let { A, B, C, D, E, F, G, H } = this;
-        for(let i = 0; i < 64; i++){
+        let { A , B , C , D , E , F , G , H  } = this;
+        for(let i2 = 0; i2 < 64; i2++){
             const sigma1 = rotr(E, 6) ^ rotr(E, 11) ^ rotr(E, 25);
-            const T1 = H + sigma1 + Chi(E, F, G) + SHA256_K[i] + SHA256_W[i] | 0;
+            const T1 = H + sigma1 + Chi(E, F, G) + SHA256_K[i2] + SHA256_W[i2] | 0;
             const sigma0 = rotr(A, 2) ^ rotr(A, 13) ^ rotr(A, 22);
             const T2 = sigma0 + Maj(A, B, C) | 0;
             H = G;
@@ -2786,7 +2786,7 @@ function split$1(lst, le = false) {
     let Ah = new Uint32Array(lst.length);
     let Al = new Uint32Array(lst.length);
     for(let i = 0; i < lst.length; i++){
-        const { h, l } = fromBig(lst[i], le);
+        const { h , l  } = fromBig(lst[i], le);
         [Ah[i], Al[i]] = [
             h,
             l
@@ -2952,7 +2952,7 @@ class SHA512 extends SHA2 {
         this.Hl = 327033209 | 0;
     }
     get() {
-        const { Ah, Al, Bh, Bl, Ch, Cl, Dh, Dl, Eh, El, Fh, Fl, Gh, Gl, Hh, Hl } = this;
+        const { Ah , Al , Bh , Bl , Ch , Cl , Dh , Dl , Eh , El , Fh , Fl , Gh , Gl , Hh , Hl  } = this;
         return [
             Ah,
             Al,
@@ -2995,28 +2995,28 @@ class SHA512 extends SHA2 {
             SHA512_W_H[i] = view.getUint32(offset);
             SHA512_W_L[i] = view.getUint32(offset += 4);
         }
-        for(let i = 16; i < 80; i++){
-            const W15h = SHA512_W_H[i - 15] | 0;
-            const W15l = SHA512_W_L[i - 15] | 0;
+        for(let i1 = 16; i1 < 80; i1++){
+            const W15h = SHA512_W_H[i1 - 15] | 0;
+            const W15l = SHA512_W_L[i1 - 15] | 0;
             const s0h = u64.rotrSH(W15h, W15l, 1) ^ u64.rotrSH(W15h, W15l, 8) ^ u64.shrSH(W15h, W15l, 7);
             const s0l = u64.rotrSL(W15h, W15l, 1) ^ u64.rotrSL(W15h, W15l, 8) ^ u64.shrSL(W15h, W15l, 7);
-            const W2h = SHA512_W_H[i - 2] | 0;
-            const W2l = SHA512_W_L[i - 2] | 0;
+            const W2h = SHA512_W_H[i1 - 2] | 0;
+            const W2l = SHA512_W_L[i1 - 2] | 0;
             const s1h = u64.rotrSH(W2h, W2l, 19) ^ u64.rotrBH(W2h, W2l, 61) ^ u64.shrSH(W2h, W2l, 6);
             const s1l = u64.rotrSL(W2h, W2l, 19) ^ u64.rotrBL(W2h, W2l, 61) ^ u64.shrSL(W2h, W2l, 6);
-            const SUMl = u64.add4L(s0l, s1l, SHA512_W_L[i - 7], SHA512_W_L[i - 16]);
-            const SUMh = u64.add4H(SUMl, s0h, s1h, SHA512_W_H[i - 7], SHA512_W_H[i - 16]);
-            SHA512_W_H[i] = SUMh | 0;
-            SHA512_W_L[i] = SUMl | 0;
+            const SUMl = u64.add4L(s0l, s1l, SHA512_W_L[i1 - 7], SHA512_W_L[i1 - 16]);
+            const SUMh = u64.add4H(SUMl, s0h, s1h, SHA512_W_H[i1 - 7], SHA512_W_H[i1 - 16]);
+            SHA512_W_H[i1] = SUMh | 0;
+            SHA512_W_L[i1] = SUMl | 0;
         }
-        let { Ah, Al, Bh, Bl, Ch, Cl, Dh, Dl, Eh, El, Fh, Fl, Gh, Gl, Hh, Hl } = this;
-        for(let i = 0; i < 80; i++){
+        let { Ah , Al , Bh , Bl , Ch , Cl , Dh , Dl , Eh , El , Fh , Fl , Gh , Gl , Hh , Hl  } = this;
+        for(let i2 = 0; i2 < 80; i2++){
             const sigma1h = u64.rotrSH(Eh, El, 14) ^ u64.rotrSH(Eh, El, 18) ^ u64.rotrBH(Eh, El, 41);
             const sigma1l = u64.rotrSL(Eh, El, 14) ^ u64.rotrSL(Eh, El, 18) ^ u64.rotrBL(Eh, El, 41);
             const CHIh = Eh & Fh ^ ~Eh & Gh;
             const CHIl = El & Fl ^ ~El & Gl;
-            const T1ll = u64.add5L(Hl, sigma1l, CHIl, SHA512_Kl[i], SHA512_W_L[i]);
-            const T1h = u64.add5H(T1ll, Hh, sigma1h, CHIh, SHA512_Kh[i], SHA512_W_H[i]);
+            const T1ll = u64.add5L(Hl, sigma1l, CHIl, SHA512_Kl[i2], SHA512_W_L[i2]);
+            const T1h = u64.add5H(T1ll, Hh, sigma1h, CHIh, SHA512_Kh[i2], SHA512_W_H[i2]);
             const T1l = T1ll | 0;
             const sigma0h = u64.rotrSH(Ah, Al, 28) ^ u64.rotrBH(Ah, Al, 34) ^ u64.rotrBH(Ah, Al, 39);
             const sigma0l = u64.rotrSL(Ah, Al, 28) ^ u64.rotrBL(Ah, Al, 34) ^ u64.rotrBL(Ah, Al, 39);
@@ -3028,7 +3028,7 @@ class SHA512 extends SHA2 {
             Gl = Fl | 0;
             Fh = Eh | 0;
             Fl = El | 0;
-            ({ h: Eh, l: El } = u64.add(Dh | 0, Dl | 0, T1h | 0, T1l | 0));
+            ({ h: Eh , l: El  } = u64.add(Dh | 0, Dl | 0, T1h | 0, T1l | 0));
             Dh = Ch | 0;
             Dl = Cl | 0;
             Ch = Bh | 0;
@@ -3039,14 +3039,14 @@ class SHA512 extends SHA2 {
             Ah = u64.add3H(All, T1h, sigma0h, MAJh);
             Al = All | 0;
         }
-        ({ h: Ah, l: Al } = u64.add(this.Ah | 0, this.Al | 0, Ah | 0, Al | 0));
-        ({ h: Bh, l: Bl } = u64.add(this.Bh | 0, this.Bl | 0, Bh | 0, Bl | 0));
-        ({ h: Ch, l: Cl } = u64.add(this.Ch | 0, this.Cl | 0, Ch | 0, Cl | 0));
-        ({ h: Dh, l: Dl } = u64.add(this.Dh | 0, this.Dl | 0, Dh | 0, Dl | 0));
-        ({ h: Eh, l: El } = u64.add(this.Eh | 0, this.El | 0, Eh | 0, El | 0));
-        ({ h: Fh, l: Fl } = u64.add(this.Fh | 0, this.Fl | 0, Fh | 0, Fl | 0));
-        ({ h: Gh, l: Gl } = u64.add(this.Gh | 0, this.Gl | 0, Gh | 0, Gl | 0));
-        ({ h: Hh, l: Hl } = u64.add(this.Hh | 0, this.Hl | 0, Hh | 0, Hl | 0));
+        ({ h: Ah , l: Al  } = u64.add(this.Ah | 0, this.Al | 0, Ah | 0, Al | 0));
+        ({ h: Bh , l: Bl  } = u64.add(this.Bh | 0, this.Bl | 0, Bh | 0, Bl | 0));
+        ({ h: Ch , l: Cl  } = u64.add(this.Ch | 0, this.Cl | 0, Ch | 0, Cl | 0));
+        ({ h: Dh , l: Dl  } = u64.add(this.Dh | 0, this.Dl | 0, Dh | 0, Dl | 0));
+        ({ h: Eh , l: El  } = u64.add(this.Eh | 0, this.El | 0, Eh | 0, El | 0));
+        ({ h: Fh , l: Fl  } = u64.add(this.Fh | 0, this.Fl | 0, Fh | 0, Fl | 0));
+        ({ h: Gh , l: Gl  } = u64.add(this.Gh | 0, this.Gl | 0, Gh | 0, Gl | 0));
+        ({ h: Hh , l: Hl  } = u64.add(this.Hh | 0, this.Hl | 0, Hh | 0, Hl | 0));
         this.set(Ah, Al, Bh, Bl, Ch, Cl, Dh, Dl, Eh, El, Fh, Fl, Gh, Gl, Hh, Hl);
     }
     roundClean() {
@@ -3163,33 +3163,33 @@ function keccakP(s, rounds = 24) {
     const B = new Uint32Array(5 * 2);
     for(let round = 24 - rounds; round < 24; round++){
         for(let x = 0; x < 10; x++)B[x] = s[x] ^ s[x + 10] ^ s[x + 20] ^ s[x + 30] ^ s[x + 40];
-        for(let x = 0; x < 10; x += 2){
-            const idx1 = (x + 8) % 10;
-            const idx0 = (x + 2) % 10;
+        for(let x1 = 0; x1 < 10; x1 += 2){
+            const idx1 = (x1 + 8) % 10;
+            const idx0 = (x1 + 2) % 10;
             const B0 = B[idx0];
             const B1 = B[idx0 + 1];
             const Th = rotlH(B0, B1, 1) ^ B[idx1];
             const Tl = rotlL(B0, B1, 1) ^ B[idx1 + 1];
             for(let y = 0; y < 50; y += 10){
-                s[x + y] ^= Th;
-                s[x + y + 1] ^= Tl;
+                s[x1 + y] ^= Th;
+                s[x1 + y + 1] ^= Tl;
             }
         }
         let curH = s[2];
         let curL = s[3];
         for(let t = 0; t < 24; t++){
             const shift = SHA3_ROTL[t];
-            const Th = rotlH(curH, curL, shift);
-            const Tl = rotlL(curH, curL, shift);
+            const Th1 = rotlH(curH, curL, shift);
+            const Tl1 = rotlL(curH, curL, shift);
             const PI = SHA3_PI[t];
             curH = s[PI];
             curL = s[PI + 1];
-            s[PI] = Th;
-            s[PI + 1] = Tl;
+            s[PI] = Th1;
+            s[PI + 1] = Tl1;
         }
-        for(let y = 0; y < 50; y += 10){
-            for(let x = 0; x < 10; x++)B[x] = s[y + x];
-            for(let x = 0; x < 10; x++)s[y + x] ^= ~B[(x + 2) % 10] & B[(x + 4) % 10];
+        for(let y1 = 0; y1 < 50; y1 += 10){
+            for(let x2 = 0; x2 < 10; x2++)B[x2] = s[y1 + x2];
+            for(let x3 = 0; x3 < 10; x3++)s[y1 + x3] ^= ~B[(x3 + 2) % 10] & B[(x3 + 4) % 10];
         }
         s[0] ^= SHA3_IOTA_H[round];
         s[1] ^= SHA3_IOTA_L[round];
@@ -3220,7 +3220,7 @@ class Keccak extends Hash {
     }
     update(data) {
         exists(this);
-        const { blockLen, state } = this;
+        const { blockLen , state  } = this;
         data = toBytes(data);
         const len = data.length;
         for(let pos = 0; pos < len;){
@@ -3233,7 +3233,7 @@ class Keccak extends Hash {
     finish() {
         if (this.finished) return;
         this.finished = true;
-        const { state, suffix, pos, blockLen } = this;
+        const { state , suffix , pos , blockLen  } = this;
         state[pos] ^= suffix;
         if ((suffix & 128) !== 0 && pos === blockLen - 1) this.keccak();
         state[blockLen - 1] ^= 128;
@@ -3244,7 +3244,7 @@ class Keccak extends Hash {
         bytes(out);
         this.finish();
         const bufferOut = this.state;
-        const { blockLen } = this;
+        const { blockLen  } = this;
         for(let pos = 0, len = out.length; pos < len;){
             if (this.posOut >= blockLen) this.keccak();
             const take = Math.min(blockLen - this.posOut, len - pos);
@@ -3277,7 +3277,7 @@ class Keccak extends Hash {
         this.state.fill(0);
     }
     _cloneInto(to) {
-        const { blockLen, suffix, outputLen, rounds, enableXOF } = this;
+        const { blockLen , suffix , outputLen , rounds , enableXOF  } = this;
         to || (to = new Keccak(blockLen, suffix, outputLen, enableXOF, rounds));
         to.state32.set(this.state32);
         to.pos = this.pos;
@@ -3341,10 +3341,10 @@ let idxL = [
 let idxR = [
     Pi
 ];
-for(let i = 0; i < 4; i++)for (let j of [
+for(let i = 0; i < 4; i++)for (let j1 of [
     idxL,
     idxR
-])j.push(j[i].map((k)=>Rho[k]));
+])j1.push(j1[i].map((k)=>Rho[k]));
 const shifts = [
     [
         11,
@@ -3472,7 +3472,7 @@ class RIPEMD160 extends SHA2 {
         this.h4 = 3285377520 | 0;
     }
     get() {
-        const { h0, h1, h2, h3, h4 } = this;
+        const { h0 , h1 , h2 , h3 , h4  } = this;
         return [
             h0,
             h1,
@@ -3496,12 +3496,12 @@ class RIPEMD160 extends SHA2 {
             const hbl = Kl[group], hbr = Kr[group];
             const rl = idxL[group], rr = idxR[group];
             const sl = shiftsL[group], sr = shiftsR[group];
-            for(let i = 0; i < 16; i++){
-                const tl = rotl$1(al + f(group, bl, cl, dl) + BUF[rl[i]] + hbl, sl[i]) + el | 0;
+            for(let i1 = 0; i1 < 16; i1++){
+                const tl = rotl$1(al + f(group, bl, cl, dl) + BUF[rl[i1]] + hbl, sl[i1]) + el | 0;
                 al = el, el = dl, dl = rotl$1(cl, 10) | 0, cl = bl, bl = tl;
             }
-            for(let i = 0; i < 16; i++){
-                const tr = rotl$1(ar + f(rGroup, br, cr, dr) + BUF[rr[i]] + hbr, sr[i]) + er | 0;
+            for(let i2 = 0; i2 < 16; i2++){
+                const tr = rotl$1(ar + f(rGroup, br, cr, dr) + BUF[rr[i2]] + hbr, sr[i2]) + er | 0;
                 ar = er, er = dr, dr = rotl$1(cr, 10) | 0, cr = br, br = tr;
             }
         }
@@ -3643,9 +3643,9 @@ function BlockMix(input, ii, out, oi, r) {
     let head = oi + 0;
     let tail = oi + 16 * r;
     for(let i = 0; i < 16; i++)out[tail + i] = input[ii + (2 * r - 1) * 16 + i];
-    for(let i = 0; i < r; i++, head += 16, ii += 16){
+    for(let i1 = 0; i1 < r; i1++, head += 16, ii += 16){
         XorAndSalsa(out, tail, input, ii, out, head);
-        if (i > 0) tail += 16;
+        if (i1 > 0) tail += 16;
         XorAndSalsa(out, head, input, ii += 16, out, tail);
     }
 }
@@ -3655,7 +3655,7 @@ function scryptInit(password, salt, _opts) {
         asyncTick: 10,
         maxmem: 1024 ** 3 + 1024
     }, _opts);
-    const { N, r, p, dkLen, asyncTick, maxmem, onProgress } = opts;
+    const { N , r , p , dkLen , asyncTick , maxmem , onProgress  } = opts;
     number(N);
     number(r);
     number(p);
@@ -3720,17 +3720,17 @@ function scryptOutput(password, dkLen, B, V, tmp) {
     return res;
 }
 function scrypt$1(password, salt, opts) {
-    const { N, r, p, dkLen, blockSize32, V, B32, B, tmp, blockMixCb } = scryptInit(password, salt, opts);
+    const { N , r , p , dkLen , blockSize32 , V , B32 , B , tmp , blockMixCb  } = scryptInit(password, salt, opts);
     for(let pi = 0; pi < p; pi++){
         const Pi = blockSize32 * pi;
         for(let i = 0; i < blockSize32; i++)V[i] = B32[Pi + i];
-        for(let i = 0, pos = 0; i < N - 1; i++){
+        for(let i1 = 0, pos = 0; i1 < N - 1; i1++){
             BlockMix(V, pos, V, pos += blockSize32, r);
             blockMixCb();
         }
         BlockMix(V, (N - 1) * blockSize32, B32, Pi, r);
         blockMixCb();
-        for(let i = 0; i < N; i++){
+        for(let i2 = 0; i2 < N; i2++){
             const j = B32[Pi + blockSize32 - 16] % N;
             for(let k = 0; k < blockSize32; k++)tmp[k] = B32[Pi + k] ^ V[j * blockSize32 + k];
             BlockMix(tmp, 0, B32, Pi, r);
@@ -3740,7 +3740,7 @@ function scrypt$1(password, salt, opts) {
     return scryptOutput(password, dkLen, B, V, tmp);
 }
 async function scryptAsync(password, salt, opts) {
-    const { N, r, p, dkLen, blockSize32, V, B32, B, tmp, blockMixCb, asyncTick } = scryptInit(password, salt, opts);
+    const { N , r , p , dkLen , blockSize32 , V , B32 , B , tmp , blockMixCb , asyncTick  } = scryptInit(password, salt, opts);
     for(let pi = 0; pi < p; pi++){
         const Pi = blockSize32 * pi;
         for(let i = 0; i < blockSize32; i++)V[i] = B32[Pi + i];
@@ -4022,7 +4022,7 @@ function validateObject(object, validators, optValidators = {}) {
         }
     };
     for (const [fieldName, type] of Object.entries(validators))checkField(fieldName, type, false);
-    for (const [fieldName, type] of Object.entries(optValidators))checkField(fieldName, type, true);
+    for (const [fieldName1, type1] of Object.entries(optValidators))checkField(fieldName1, type1, true);
     return object;
 }
 var ut = Object.freeze({
@@ -4220,7 +4220,7 @@ function nLength(n, nBitLength) {
 }
 function Field(ORDER, bitLen, isLE = false, redef = {}) {
     if (ORDER <= _0n$2) throw new Error(`Expected Field ORDER > 0, got ${ORDER}`);
-    const { nBitLength: BITS, nByteLength: BYTES } = nLength(ORDER, bitLen);
+    const { nBitLength: BITS , nByteLength: BYTES  } = nLength(ORDER, bitLen);
     if (BYTES > 2048) throw new Error("Field lengths over 2048 bytes are not supported");
     const sqrtP = FpSqrt(ORDER);
     const f = Object.freeze({
@@ -4307,7 +4307,7 @@ function wNAF(c, bits) {
             return p;
         },
         precomputeWindow (elm, W) {
-            const { windows, windowSize } = opts(W);
+            const { windows , windowSize  } = opts(W);
             const points = [];
             let p = elm;
             let base = p;
@@ -4323,7 +4323,7 @@ function wNAF(c, bits) {
             return points;
         },
         wNAF (W, precomputes, n) {
-            const { windows, windowSize } = opts(W);
+            const { windows , windowSize  } = opts(W);
             let p = c.ZERO;
             let f = c.BASE;
             const mask = BigInt(2 ** W - 1);
@@ -4398,7 +4398,7 @@ function validatePointOpts(curve) {
         fromBytes: "function",
         toBytes: "function"
     });
-    const { endo, Fp, a } = opts;
+    const { endo , Fp , a  } = opts;
     if (endo) {
         if (!Fp.eql(a, Fp.ZERO)) {
             throw new Error("Endomorphism can only be defined for Koblitz curves that have a=0");
@@ -4411,7 +4411,7 @@ function validatePointOpts(curve) {
         ...opts
     });
 }
-const { bytesToNumberBE: b2n, hexToBytes: h2b } = ut;
+const { bytesToNumberBE: b2n , hexToBytes: h2b  } = ut;
 const DER = {
     Err: class DERErr extends Error {
         constructor(m = ""){
@@ -4419,7 +4419,7 @@ const DER = {
         }
     },
     _parseInt (data) {
-        const { Err: E } = DER;
+        const { Err: E  } = DER;
         if (data.length < 2 || data[0] !== 2) throw new E("Invalid signature integer tag");
         const len = data[1];
         const res = data.subarray(2, len + 2);
@@ -4432,14 +4432,14 @@ const DER = {
         };
     },
     toSig (hex) {
-        const { Err: E } = DER;
+        const { Err: E  } = DER;
         const data = typeof hex === "string" ? h2b(hex) : hex;
         if (!(data instanceof Uint8Array)) throw new Error("ui8a expected");
         let l = data.length;
         if (l < 2 || data[0] != 48) throw new E("Invalid signature tag");
         if (data[1] !== l - 2) throw new E("Invalid signature: incorrect length");
-        const { d: r, l: sBytes } = DER._parseInt(data.subarray(2));
-        const { d: s, l: rBytesLeft } = DER._parseInt(sBytes);
+        const { d: r , l: sBytes  } = DER._parseInt(data.subarray(2));
+        const { d: s , l: rBytesLeft  } = DER._parseInt(sBytes);
         if (rBytesLeft.length) throw new E("Invalid signature: left bytes after parsing");
         return {
             r: r,
@@ -4467,7 +4467,7 @@ const _3n = BigInt(3);
 BigInt(4);
 function weierstrassPoints(opts) {
     const CURVE = validatePointOpts(opts);
-    const { Fp } = CURVE;
+    const { Fp  } = CURVE;
     const toBytes = CURVE.toBytes || ((_c, point, _isCompressed)=>{
         const a = point.toAffine();
         return concatBytes(Uint8Array.from([
@@ -4484,7 +4484,7 @@ function weierstrassPoints(opts) {
         };
     });
     function weierstrassEquation(x) {
-        const { a, b } = CURVE;
+        const { a , b  } = CURVE;
         const x2 = Fp.sqr(x);
         const x3 = Fp.mul(x2, x);
         return Fp.add(Fp.add(x3, Fp.mul(x, a)), b);
@@ -4497,7 +4497,7 @@ function weierstrassPoints(opts) {
         if (!isWithinCurveOrder(num)) throw new Error("Expected valid bigint: 0 < bigint < curve.n");
     }
     function normPrivateKeyToScalar(key) {
-        const { allowedPrivateKeyLengths: lengths, nByteLength, wrapPrivateKey, n } = CURVE;
+        const { allowedPrivateKeyLengths: lengths , nByteLength , wrapPrivateKey , n  } = CURVE;
         if (lengths && typeof key !== "bigint") {
             if (key instanceof Uint8Array) key = bytesToHex(key);
             if (typeof key !== "string" || !lengths.includes(key.length)) throw new Error("Invalid key");
@@ -4527,7 +4527,7 @@ function weierstrassPoints(opts) {
             if (pz == null || !Fp.isValid(pz)) throw new Error("z required");
         }
         static fromAffine(p) {
-            const { x, y } = p || {};
+            const { x , y  } = p || {};
             if (!p || !Fp.isValid(x) || !Fp.isValid(y)) throw new Error("invalid affine point");
             if (p instanceof Point) throw new Error("projective point not allowed");
             const is0 = (i)=>Fp.eql(i, Fp.ZERO);
@@ -4561,7 +4561,7 @@ function weierstrassPoints(opts) {
                 if (CURVE.allowInfinityPoint && !Fp.is0(this.py)) return;
                 throw new Error("bad point: ZERO");
             }
-            const { x, y } = this.toAffine();
+            const { x , y  } = this.toAffine();
             if (!Fp.isValid(x) || !Fp.isValid(y)) throw new Error("bad point: x or y not FE");
             const left = Fp.sqr(y);
             const right = weierstrassEquation(x);
@@ -4569,14 +4569,14 @@ function weierstrassPoints(opts) {
             if (!this.isTorsionFree()) throw new Error("bad point: not in prime-order subgroup");
         }
         hasEvenY() {
-            const { y } = this.toAffine();
+            const { y  } = this.toAffine();
             if (Fp.isOdd) return !Fp.isOdd(y);
             throw new Error("Field doesn't support isOdd");
         }
         equals(other) {
             assertPrjPoint(other);
-            const { px: X1, py: Y1, pz: Z1 } = this;
-            const { px: X2, py: Y2, pz: Z2 } = other;
+            const { px: X1 , py: Y1 , pz: Z1  } = this;
+            const { px: X2 , py: Y2 , pz: Z2  } = other;
             const U1 = Fp.eql(Fp.mul(X1, Z2), Fp.mul(X2, Z1));
             const U2 = Fp.eql(Fp.mul(Y1, Z2), Fp.mul(Y2, Z1));
             return U1 && U2;
@@ -4585,9 +4585,9 @@ function weierstrassPoints(opts) {
             return new Point(this.px, Fp.neg(this.py), this.pz);
         }
         double() {
-            const { a, b } = CURVE;
+            const { a , b  } = CURVE;
             const b3 = Fp.mul(b, _3n);
-            const { px: X1, py: Y1, pz: Z1 } = this;
+            const { px: X1 , py: Y1 , pz: Z1  } = this;
             let X3 = Fp.ZERO, Y3 = Fp.ZERO, Z3 = Fp.ZERO;
             let t0 = Fp.mul(X1, X1);
             let t1 = Fp.mul(Y1, Y1);
@@ -4624,8 +4624,8 @@ function weierstrassPoints(opts) {
         }
         add(other) {
             assertPrjPoint(other);
-            const { px: X1, py: Y1, pz: Z1 } = this;
-            const { px: X2, py: Y2, pz: Z2 } = other;
+            const { px: X1 , py: Y1 , pz: Z1  } = this;
+            const { px: X2 , py: Y2 , pz: Z2  } = other;
             let X3 = Fp.ZERO, Y3 = Fp.ZERO, Z3 = Fp.ZERO;
             const a = CURVE.a;
             const b3 = Fp.mul(CURVE.b, _3n);
@@ -4688,9 +4688,9 @@ function weierstrassPoints(opts) {
             if (n === _0n) return I;
             assertGE(n);
             if (n === _1n$1) return this;
-            const { endo } = CURVE;
+            const { endo  } = CURVE;
             if (!endo) return wnaf.unsafeLadder(this, n);
-            let { k1neg, k1, k2neg, k2 } = endo.splitScalar(n);
+            let { k1neg , k1 , k2neg , k2  } = endo.splitScalar(n);
             let k1p = I;
             let k2p = I;
             let d = this;
@@ -4710,18 +4710,18 @@ function weierstrassPoints(opts) {
             assertGE(scalar);
             let n = scalar;
             let point, fake;
-            const { endo } = CURVE;
+            const { endo  } = CURVE;
             if (endo) {
-                const { k1neg, k1, k2neg, k2 } = endo.splitScalar(n);
-                let { p: k1p, f: f1p } = this.wNAF(k1);
-                let { p: k2p, f: f2p } = this.wNAF(k2);
+                const { k1neg , k1 , k2neg , k2  } = endo.splitScalar(n);
+                let { p: k1p , f: f1p  } = this.wNAF(k1);
+                let { p: k2p , f: f2p  } = this.wNAF(k2);
                 k1p = wnaf.constTimeNegate(k1neg, k1p);
                 k2p = wnaf.constTimeNegate(k2neg, k2p);
                 k2p = new Point(Fp.mul(k2p.px, endo.beta), k2p.py, k2p.pz);
                 point = k1p.add(k2p);
                 fake = f1p.add(f2p);
             } else {
-                const { p, f } = this.wNAF(n);
+                const { p , f  } = this.wNAF(n);
                 point = p;
                 fake = f;
             }
@@ -4737,7 +4737,7 @@ function weierstrassPoints(opts) {
             return sum.is0() ? undefined : sum;
         }
         toAffine(iz) {
-            const { px: x, py: y, pz: z } = this;
+            const { px: x , py: y , pz: z  } = this;
             const is0 = this.is0();
             if (iz == null) iz = is0 ? Fp.ONE : Fp.inv(z);
             const ax = Fp.mul(x, iz);
@@ -4754,13 +4754,13 @@ function weierstrassPoints(opts) {
             };
         }
         isTorsionFree() {
-            const { h: cofactor, isTorsionFree } = CURVE;
+            const { h: cofactor , isTorsionFree  } = CURVE;
             if (cofactor === _1n$1) return true;
             if (isTorsionFree) return isTorsionFree(Point, this);
             throw new Error("isTorsionFree() has not been declared for the elliptic curve");
         }
         clearCofactor() {
-            const { h: cofactor, clearCofactor } = CURVE;
+            const { h: cofactor , clearCofactor  } = CURVE;
             if (cofactor === _1n$1) return this;
             if (clearCofactor) return clearCofactor(Point, this);
             return this.multiplyUnsafe(CURVE.h);
@@ -4803,7 +4803,7 @@ function validateOpts(curve) {
 }
 function weierstrass(curveDef) {
     const CURVE = validateOpts(curveDef);
-    const { Fp, n: CURVE_ORDER } = CURVE;
+    const { Fp , n: CURVE_ORDER  } = CURVE;
     const compressedLen = Fp.BYTES + 1;
     const uncompressedLen = 2 * Fp.BYTES + 1;
     function isValidFieldElement(num) {
@@ -4815,7 +4815,7 @@ function weierstrass(curveDef) {
     function invN(a) {
         return invert(a, CURVE_ORDER);
     }
-    const { ProjectivePoint: Point, normPrivateKeyToScalar, weierstrassEquation, isWithinCurveOrder } = weierstrassPoints({
+    const { ProjectivePoint: Point , normPrivateKeyToScalar , weierstrassEquation , isWithinCurveOrder  } = weierstrassPoints({
         ...CURVE,
         toBytes (_c, point, isCompressed) {
             const a = point.toAffine();
@@ -4848,11 +4848,11 @@ function weierstrass(curveDef) {
                     y: y
                 };
             } else if (len === uncompressedLen && head === 4) {
-                const x = Fp.fromBytes(tail.subarray(0, Fp.BYTES));
-                const y = Fp.fromBytes(tail.subarray(Fp.BYTES, 2 * Fp.BYTES));
+                const x1 = Fp.fromBytes(tail.subarray(0, Fp.BYTES));
+                const y1 = Fp.fromBytes(tail.subarray(Fp.BYTES, 2 * Fp.BYTES));
                 return {
-                    x: x,
-                    y: y
+                    x: x1,
+                    y: y1
                 };
             } else {
                 throw new Error(`Point of length ${len} was invalid. Expected ${compressedLen} compressed bytes or ${uncompressedLen} uncompressed bytes`);
@@ -4881,7 +4881,7 @@ function weierstrass(curveDef) {
             return new Signature(slcNum(hex, 0, l), slcNum(hex, l, 2 * l));
         }
         static fromDER(hex) {
-            const { r, s } = DER.toSig(ensureBytes("DER", hex));
+            const { r , s  } = DER.toSig(ensureBytes("DER", hex));
             return new Signature(r, s);
         }
         assertValidity() {
@@ -4892,7 +4892,7 @@ function weierstrass(curveDef) {
             return new Signature(this.r, this.s, recovery);
         }
         recoverPublicKey(msgHash) {
-            const { r, s, recovery: rec } = this;
+            const { r , s , recovery: rec  } = this;
             const h = bits2int_modN(ensureBytes("msgHash", msgHash));
             if (rec == null || ![
                 0,
@@ -4991,8 +4991,8 @@ function weierstrass(curveDef) {
             "recovered",
             "canonical"
         ].some((k)=>k in opts)) throw new Error("sign() legacy options not supported");
-        const { hash, randomBytes } = CURVE;
-        let { lowS, prehash, extraEntropy: ent } = opts;
+        const { hash , randomBytes  } = CURVE;
+        let { lowS , prehash , extraEntropy: ent  } = opts;
         if (lowS == null) lowS = true;
         msgHash = ensureBytes("msgHash", msgHash);
         if (prehash) msgHash = ensureBytes("prehashed msgHash", hash(msgHash));
@@ -5039,7 +5039,7 @@ function weierstrass(curveDef) {
         prehash: false
     };
     function sign(msgHash, privKey, opts = defaultSigOpts) {
-        const { seed, k2sig } = prepSig(msgHash, privKey, opts);
+        const { seed , k2sig  } = prepSig(msgHash, privKey, opts);
         const C = CURVE;
         const drbg = createHmacDrbg(C.hash.outputLen, C.nByteLength, C.hmac);
         return drbg(seed, k2sig);
@@ -5050,7 +5050,7 @@ function weierstrass(curveDef) {
         msgHash = ensureBytes("msgHash", msgHash);
         publicKey = ensureBytes("publicKey", publicKey);
         if ("strict" in opts) throw new Error("options.strict was renamed to lowS");
-        const { lowS, prehash } = opts;
+        const { lowS , prehash  } = opts;
         let _sig = undefined;
         let P;
         try {
@@ -5062,7 +5062,7 @@ function weierstrass(curveDef) {
                     _sig = Signature.fromCompact(sg);
                 }
             } else if (typeof sg === "object" && typeof sg.r === "bigint" && typeof sg.s === "bigint") {
-                const { r, s } = sg;
+                const { r , s  } = sg;
                 _sig = new Signature(r, s);
             } else {
                 throw new Error("PARSE");
@@ -5074,15 +5074,15 @@ function weierstrass(curveDef) {
         }
         if (lowS && _sig.hasHighS()) return false;
         if (prehash) msgHash = CURVE.hash(msgHash);
-        const { r, s } = _sig;
+        const { r: r1 , s: s1  } = _sig;
         const h = bits2int_modN(msgHash);
-        const is = invN(s);
+        const is = invN(s1);
         const u1 = modN(h * is);
-        const u2 = modN(r * is);
+        const u2 = modN(r1 * is);
         const R = Point.BASE.multiplyAndAddUnsafe(P, u1, u2)?.toAffine();
         if (!R) return false;
         const v = modN(R.x);
-        return v === r;
+        return v === r1;
     }
     return {
         CURVE: CURVE,
@@ -5328,11 +5328,11 @@ class Signature {
                 return new Signature(_guard$3, r, hexlify(s), v);
             }
             if (bytes.length === 65) {
-                const r = hexlify(bytes.slice(0, 32));
-                const s = bytes.slice(32, 64);
-                assertError((s[0] & 128) === 0, "non-canonical s");
-                const v = Signature.getNormalizedV(bytes[64]);
-                return new Signature(_guard$3, r, hexlify(s), v);
+                const r1 = hexlify(bytes.slice(0, 32));
+                const s1 = bytes.slice(32, 64);
+                assertError((s1[0] & 128) === 0, "non-canonical s");
+                const v1 = Signature.getNormalizedV(bytes[64]);
+                return new Signature(_guard$3, r1, hexlify(s1), v1);
             }
             assertError(false, "invalid raw signature length");
         }
@@ -5341,8 +5341,8 @@ class Signature {
         }
         const _r = sig.r;
         assertError(_r != null, "missing r");
-        const r = toUint256(_r);
-        const s = function(s, yParityAndS) {
+        const r2 = toUint256(_r);
+        const s2 = function(s, yParityAndS) {
             if (s != null) {
                 return toUint256(s);
             }
@@ -5354,8 +5354,8 @@ class Signature {
             }
             assertError(false, "missing s");
         }(sig.s, sig.yParityAndS);
-        assertError((getBytes(s)[0] & 128) == 0, "non-canonical s");
-        const { networkV, v } = function(_v, yParityAndS, yParity) {
+        assertError((getBytes(s2)[0] & 128) == 0, "non-canonical s");
+        const { networkV , v: v2  } = function(_v, yParityAndS, yParity) {
             if (_v != null) {
                 const v = getBigInt(_v);
                 return {
@@ -5384,7 +5384,7 @@ class Signature {
             }
             assertError(false, "missing v");
         }(sig.v, sig.yParityAndS, sig.yParity);
-        const result = new Signature(_guard$3, r, s, v);
+        const result = new Signature(_guard$3, r2, s2, v2);
         if (networkV) {
             result.#networkV = networkV;
         }
@@ -5478,22 +5478,22 @@ function getChecksumAddress(address) {
         expanded[i] = chars[i].charCodeAt(0);
     }
     const hashed = getBytes(keccak256(expanded));
-    for(let i = 0; i < 40; i += 2){
-        if (hashed[i >> 1] >> 4 >= 8) {
-            chars[i] = chars[i].toUpperCase();
+    for(let i1 = 0; i1 < 40; i1 += 2){
+        if (hashed[i1 >> 1] >> 4 >= 8) {
+            chars[i1] = chars[i1].toUpperCase();
         }
-        if ((hashed[i >> 1] & 15) >= 8) {
-            chars[i + 1] = chars[i + 1].toUpperCase();
+        if ((hashed[i1 >> 1] & 15) >= 8) {
+            chars[i1 + 1] = chars[i1 + 1].toUpperCase();
         }
     }
     return "0x" + chars.join("");
 }
 const ibanLookup = {};
-for(let i = 0; i < 10; i++){
-    ibanLookup[String(i)] = String(i);
+for(let i1 = 0; i1 < 10; i1++){
+    ibanLookup[String(i1)] = String(i1);
 }
-for(let i = 0; i < 26; i++){
-    ibanLookup[String.fromCharCode(65 + i)] = String(10 + i);
+for(let i2 = 0; i2 < 26; i2++){
+    ibanLookup[String.fromCharCode(65 + i2)] = String(10 + i2);
 }
 function ibanChecksum(address) {
     address = address.toUpperCase();
@@ -5539,11 +5539,11 @@ function getAddress(address) {
     }
     if (address.match(/^XE[0-9]{2}[0-9A-Za-z]{30,31}$/)) {
         assertArgument(address.substring(2, 4) === ibanChecksum(address), "bad icap checksum", "address", address);
-        let result = fromBase36(address.substring(4)).toString(16);
-        while(result.length < 40){
-            result = "0" + result;
+        let result1 = fromBase36(address.substring(4)).toString(16);
+        while(result1.length < 40){
+            result1 = "0" + result1;
         }
-        return getChecksumAddress("0x" + result);
+        return getChecksumAddress("0x" + result1);
     }
     assertArgument(false, "invalid address", "address", address);
 }
@@ -6143,11 +6143,11 @@ function unpack(reader, coders) {
         } else {
             try {
                 value = coder.decode(reader);
-            } catch (error) {
-                if (isError(error, "BUFFER_OVERRUN")) {
-                    throw error;
+            } catch (error1) {
+                if (isError(error1, "BUFFER_OVERRUN")) {
+                    throw error1;
                 }
-                value = error;
+                value = error1;
                 value.baseType = coder.name;
                 value.name = coder.localName;
                 value.type = coder.type;
@@ -6459,7 +6459,7 @@ function decode_arithmetic(bytes) {
     const QRTR = HALF >> 1;
     const MASK = FULL - 1;
     let register = 0;
-    for(let i = 0; i < 31; i++)register = register << 1 | read_bit();
+    for(let i1 = 0; i1 < 31; i1++)register = register << 1 | read_bit();
     let symbols = [];
     let low = 0;
     let range = FULL;
@@ -6565,9 +6565,9 @@ function read_mapped(next) {
         ret.push(read_linear_table(w, next));
     }
     while(true){
-        let w = next() - 1;
-        if (w < 0) break;
-        ret.push(read_replacement_table(w, next));
+        let w1 = next() - 1;
+        if (w1 < 0) break;
+        ret.push(read_replacement_table(w1, next));
     }
     return ret.flat();
 }
@@ -6628,7 +6628,7 @@ function read_trie(next) {
             Q: Q
         };
     }
-    function expand({ S, B }, cps, saved) {
+    function expand({ S , B  }, cps, saved) {
         if (S & 4 && saved === cps[cps.length - 1]) return;
         if (S & 2) saved = cps[cps.length - 1];
         if (S & 1) ret.push(cps);
@@ -6899,11 +6899,11 @@ function init() {
             WHOLE_MAP.set(cp, w);
         }
     });
-    for (let { V, M } of new Set(WHOLE_MAP.values())){
+    for (let { V , M  } of new Set(WHOLE_MAP.values())){
         let recs = [];
         for (let cp of V){
             let gs = GROUPS.filter((g)=>group_has_cp(g, cp));
-            let rec = recs.find(({ G })=>gs.some((g)=>G.has(g)));
+            let rec = recs.find(({ G  })=>gs.some((g)=>G.has(g)));
             if (!rec) {
                 rec = {
                     G: new Set,
@@ -6915,10 +6915,10 @@ function init() {
             set_add_many(rec.G, gs);
         }
         let union = recs.flatMap((x)=>Array_from(x.G));
-        for (let { G, V } of recs){
+        for (let { G , V: V1  } of recs){
             let complement = new Set(union.filter((g)=>!G.has(g)));
-            for (let cp of V){
-                M.set(cp, complement);
+            for (let cp1 of V1){
+                M.set(cp1, complement);
             }
         }
     }
@@ -6926,12 +6926,12 @@ function init() {
     let multi = new Set;
     const add_to_union = (cp)=>VALID.has(cp) ? multi.add(cp) : VALID.add(cp);
     for (let g of GROUPS){
-        for (let cp of g.P)add_to_union(cp);
-        for (let cp of g.Q)add_to_union(cp);
+        for (let cp2 of g.P)add_to_union(cp2);
+        for (let cp3 of g.Q)add_to_union(cp3);
     }
-    for (let cp of VALID){
-        if (!WHOLE_MAP.has(cp) && !multi.has(cp)) {
-            WHOLE_MAP.set(cp, 1);
+    for (let cp4 of VALID){
+        if (!WHOLE_MAP.has(cp4) && !multi.has(cp4)) {
+            WHOLE_MAP.set(cp4, 1);
         }
     }
     set_add_many(VALID, nfd(VALID));
@@ -6941,16 +6941,16 @@ function init() {
         let prev = [
             EMOJI_ROOT
         ];
-        for (let cp of cps){
+        for (let cp5 of cps){
             let next = prev.map((node)=>{
-                let child = node.get(cp);
+                let child = node.get(cp5);
                 if (!child) {
                     child = new Map;
-                    node.set(cp, child);
+                    node.set(cp5, child);
                 }
                 return child;
             });
-            if (cp === 65039) {
+            if (cp5 === 65039) {
                 prev.push(...next);
             } else {
                 prev = next;
@@ -7125,7 +7125,7 @@ function determine_group(unique) {
     return groups;
 }
 function flatten(split) {
-    return split.map(({ input, error, output })=>{
+    return split.map(({ input , error , output  })=>{
         if (error) {
             let msg = error.message;
             throw new Error(split.length == 1 ? msg : `Invalid label ${bidi_qq(safe_str_from_cps(input, 63))}: ${msg}`);
@@ -7158,10 +7158,10 @@ function check_group(g, cps) {
         for(let i = 1, e = decomposed.length; i < e; i++){
             if (NSM.has(decomposed[i])) {
                 let j = i + 1;
-                for(let cp; j < e && NSM.has(cp = decomposed[j]); j++){
+                for(let cp1; j < e && NSM.has(cp1 = decomposed[j]); j++){
                     for(let k = i; k < j; k++){
-                        if (decomposed[k] == cp) {
-                            throw new Error(`duplicate non-spacing marks: ${quoted_cp(cp)}`);
+                        if (decomposed[k] == cp1) {
+                            throw new Error(`duplicate non-spacing marks: ${quoted_cp(cp1)}`);
                         }
                     }
                 }
@@ -7214,7 +7214,7 @@ function consume_emoji_reversed(cps, eaten) {
     while(pos){
         node = node.get(cps[--pos]);
         if (!node) break;
-        let { V } = node;
+        let { V  } = node;
         if (V) {
             emoji = V;
             cps.length = pos;
@@ -7611,8 +7611,8 @@ function _parseEip4844(data) {
     }
     assertArgument(tx.to != null, `invalid address for transaction type: ${typeName}`, "data", data);
     assertArgument(Array.isArray(tx.blobVersionedHashes), "invalid blobVersionedHashes: must be an array", "data", data);
-    for(let i = 0; i < tx.blobVersionedHashes.length; i++){
-        assertArgument(isHexString(tx.blobVersionedHashes[i], 32), `invalid blobVersionedHash at index ${i}: must be length 32`, "data", data);
+    for(let i1 = 0; i1 < tx.blobVersionedHashes.length; i1++){
+        assertArgument(isHexString(tx.blobVersionedHashes[i1], 32), `invalid blobVersionedHash at index ${i1}: must be length 32`, "data", data);
     }
     if (fields.length === 11) {
         return tx;
@@ -7873,13 +7873,13 @@ class Transaction {
                 });
                 versionedHashes.push(getVersionedHash(1, commit));
             } else {
-                const commit = hexlify(blob.commitment);
+                const commit1 = hexlify(blob.commitment);
                 blobs.push({
                     data: hexlify(blob.data),
-                    commitment: commit,
+                    commitment: commit1,
                     proof: hexlify(blob.proof)
                 });
-                versionedHashes.push(getVersionedHash(1, commit));
+                versionedHashes.push(getVersionedHash(1, commit1));
             }
         }
         this.#blobs = blobs;
@@ -7933,11 +7933,11 @@ class Transaction {
     isSigned() {
         return this.signature != null;
     }
-    #getSerialized(signed, sidecar) {
-        assert1(!signed || this.signature != null, "cannot serialize unsigned transaction; maybe you meant .unsignedSerialized", "UNSUPPORTED_OPERATION", {
+    #getSerialized(signed1, sidecar) {
+        assert1(!signed1 || this.signature != null, "cannot serialize unsigned transaction; maybe you meant .unsignedSerialized", "UNSUPPORTED_OPERATION", {
             operation: ".serialized"
         });
-        const sig = signed ? this.signature : null;
+        const sig = signed1 ? this.signature : null;
         switch(this.inferType()){
             case 0:
                 return _serializeLegacy(this, sig);
@@ -8175,9 +8175,9 @@ function _pack(type, value, isArray) {
     }
     match = type.match(regexBytes);
     if (match) {
-        const size = parseInt(match[1]);
-        assertArgument(String(size) === match[1] && size !== 0 && size <= 32, "invalid bytes type", "type", type);
-        assertArgument(dataLength(value) === size, `invalid value for ${type}`, "value", value);
+        const size1 = parseInt(match[1]);
+        assertArgument(String(size1) === match[1] && size1 !== 0 && size1 <= 32, "invalid bytes type", "type", type);
+        assertArgument(dataLength(value) === size1, `invalid value for ${type}`, "value", value);
         if (isArray) {
             return getBytes(zeroPadBytes(value, 32));
         }
@@ -8289,13 +8289,13 @@ function getBaseEncoder(type) {
         }
     }
     {
-        const match = type.match(/^bytes(\d+)$/);
-        if (match) {
-            const width = parseInt(match[1]);
-            assertArgument(width !== 0 && width <= 32 && match[1] === String(width), "invalid bytes width", "type", type);
+        const match1 = type.match(/^bytes(\d+)$/);
+        if (match1) {
+            const width1 = parseInt(match1[1]);
+            assertArgument(width1 !== 0 && width1 <= 32 && match1[1] === String(width1), "invalid bytes width", "type", type);
             return function(value) {
                 const bytes = getBytes(value);
-                assertArgument(bytes.length === width, `invalid length for ${type}`, "value", value);
+                assertArgument(bytes.length === width1, `invalid length for ${type}`, "value", value);
                 return hexPadRight(value);
             };
         }
@@ -8321,7 +8321,7 @@ function getBaseEncoder(type) {
     return null;
 }
 function encodeType(name, fields) {
-    return `${name}(${fields.map(({ name, type })=>type + " " + name).join(",")})`;
+    return `${name}(${fields.map(({ name , type  })=>type + " " + name).join(",")})`;
 }
 function splitArray(type) {
     const match = type.match(/^([^\x5b]*)((\x5b\d*\x5d)*)(\x5b(\d*)\x5d)$/);
@@ -8356,8 +8356,8 @@ class TypedDataEncoder {
         const subtypes = new Map;
         const types = {};
         Object.keys(_types).forEach((type)=>{
-            types[type] = _types[type].map(({ name, type })=>{
-                let { base, index } = splitArray(type);
+            types[type] = _types[type].map(({ name , type  })=>{
+                let { base , index  } = splitArray(type);
                 if (base === "int" && !_types["int"]) {
                     base = "int256";
                 }
@@ -8411,10 +8411,10 @@ class TypedDataEncoder {
             found.delete(type);
         }
         checkCircular(this.primaryType, new Set);
-        for (const [name, set] of subtypes){
+        for (const [name1, set] of subtypes){
             const st = Array.from(set);
             st.sort();
-            this.#fullTypes.set(name, encodeType(name, types[name]) + st.map((t)=>encodeType(t, types[t])).join(""));
+            this.#fullTypes.set(name1, encodeType(name1, types[name1]) + st.map((t)=>encodeType(t, types[t])).join(""));
         }
     }
     getEncoder(type) {
@@ -8427,9 +8427,9 @@ class TypedDataEncoder {
     }
     #getEncoder(type) {
         {
-            const encoder = getBaseEncoder(type);
-            if (encoder) {
-                return encoder;
+            const encoder1 = getBaseEncoder(type);
+            if (encoder1) {
+                return encoder1;
             }
         }
         const array = splitArray(type).array;
@@ -8449,7 +8449,7 @@ class TypedDataEncoder {
         if (fields) {
             const encodedType = id(this.#fullTypes.get(type));
             return (value)=>{
-                const values = fields.map(({ name, type })=>{
+                const values = fields.map(({ name , type  })=>{
                     const result = this.getEncoder(type)(value[name]);
                     if (this.#fullTypes.has(type)) {
                         return keccak256(result);
@@ -8493,7 +8493,7 @@ class TypedDataEncoder {
         }
         const fields = this.types[type];
         if (fields) {
-            return fields.reduce((accum, { name, type })=>{
+            return fields.reduce((accum, { name , type  })=>{
                 accum[name] = this._visit(type, value[name], callback);
                 return accum;
             }, {});
@@ -9000,38 +9000,38 @@ class ParamType {
                 result.type += `[${this.arrayLength < 0 ? "" : String(this.arrayLength)}]`;
                 return JSON.stringify(result);
             }
-            const result = {
+            const result1 = {
                 type: this.baseType === "tuple" ? "tuple" : this.type,
                 name: name
             };
             if (typeof this.indexed === "boolean") {
-                result.indexed = this.indexed;
+                result1.indexed = this.indexed;
             }
             if (this.isTuple()) {
-                result.components = this.components.map((c)=>JSON.parse(c.format(format)));
+                result1.components = this.components.map((c)=>JSON.parse(c.format(format)));
             }
-            return JSON.stringify(result);
+            return JSON.stringify(result1);
         }
-        let result = "";
+        let result2 = "";
         if (this.isArray()) {
-            result += this.arrayChildren.format(format);
-            result += `[${this.arrayLength < 0 ? "" : String(this.arrayLength)}]`;
+            result2 += this.arrayChildren.format(format);
+            result2 += `[${this.arrayLength < 0 ? "" : String(this.arrayLength)}]`;
         } else {
             if (this.isTuple()) {
-                result += "(" + this.components.map((comp)=>comp.format(format)).join(format === "full" ? ", " : ",") + ")";
+                result2 += "(" + this.components.map((comp)=>comp.format(format)).join(format === "full" ? ", " : ",") + ")";
             } else {
-                result += this.type;
+                result2 += this.type;
             }
         }
         if (format !== "sighash") {
             if (this.indexed === true) {
-                result += " indexed";
+                result2 += " indexed";
             }
             if (format === "full" && this.name) {
-                result += " " + this.name;
+                result2 += " " + this.name;
             }
         }
-        return result;
+        return result2;
     }
     isArray() {
         return this.baseType === "array";
@@ -9060,8 +9060,8 @@ class ParamType {
             if (value.length !== this.components.length) {
                 throw new Error("array is wrong length");
             }
-            const _this = this;
-            return value.map((v, i)=>_this.components[i].walk(v, process));
+            const _this1 = this;
+            return value.map((v, i)=>_this1.components[i].walk(v, process));
         }
         return process(this.type, value);
     }
@@ -9074,25 +9074,25 @@ class ParamType {
                 throw new Error("array is wrong length");
             }
             const childType = this.arrayChildren;
-            const result = value.slice();
-            result.forEach((value, index)=>{
+            const result1 = value.slice();
+            result1.forEach((value, index)=>{
                 childType.#walkAsync(promises, value, process, (value)=>{
-                    result[index] = value;
+                    result1[index] = value;
                 });
             });
-            setValue(result);
+            setValue(result1);
             return;
         }
         if (this.isTuple()) {
             const components = this.components;
-            let result;
+            let result2;
             if (Array.isArray(value)) {
-                result = value.slice();
+                result2 = value.slice();
             } else {
                 if (value == null || typeof value !== "object") {
                     throw new Error("invalid tuple value");
                 }
-                result = components.map((param)=>{
+                result2 = components.map((param)=>{
                     if (!param.name) {
                         throw new Error("cannot use object value with unnamed components");
                     }
@@ -9102,24 +9102,24 @@ class ParamType {
                     return value[param.name];
                 });
             }
-            if (result.length !== this.components.length) {
+            if (result2.length !== this.components.length) {
                 throw new Error("array is wrong length");
             }
-            result.forEach((value, index)=>{
+            result2.forEach((value, index)=>{
                 components[index].#walkAsync(promises, value, process, (value)=>{
-                    result[index] = value;
+                    result2[index] = value;
                 });
             });
-            setValue(result);
+            setValue(result2);
             return;
         }
-        const result = process(this.type, value);
-        if (result.then) {
+        const result3 = process(this.type, value);
+        if (result3.then) {
             promises.push(async function() {
-                setValue(await result);
+                setValue(await result3);
             }());
         } else {
-            setValue(result);
+            setValue(result3);
         }
     }
     async walkAsync(value, process) {
@@ -9182,30 +9182,30 @@ class ParamType {
             }
             return new ParamType(_guard$2, name, type, baseType, indexed, comps, arrayLength, arrayChildren);
         }
-        const name = obj.name;
-        assertArgument(!name || typeof name === "string" && name.match(regexId), "invalid name", "obj.name", name);
-        let indexed = obj.indexed;
-        if (indexed != null) {
+        const name1 = obj.name;
+        assertArgument(!name1 || typeof name1 === "string" && name1.match(regexId), "invalid name", "obj.name", name1);
+        let indexed1 = obj.indexed;
+        if (indexed1 != null) {
             assertArgument(allowIndexed, "parameter cannot be indexed", "obj.indexed", obj.indexed);
-            indexed = !!indexed;
+            indexed1 = !!indexed1;
         }
-        let type = obj.type;
-        let arrayMatch = type.match(regexArrayType);
+        let type1 = obj.type;
+        let arrayMatch = type1.match(regexArrayType);
         if (arrayMatch) {
-            const arrayLength = parseInt(arrayMatch[2] || "-1");
-            const arrayChildren = ParamType.from({
+            const arrayLength1 = parseInt(arrayMatch[2] || "-1");
+            const arrayChildren1 = ParamType.from({
                 type: arrayMatch[1],
                 components: obj.components
             });
-            return new ParamType(_guard$2, name || "", type, "array", indexed, null, arrayLength, arrayChildren);
+            return new ParamType(_guard$2, name1 || "", type1, "array", indexed1, null, arrayLength1, arrayChildren1);
         }
-        if (type === "tuple" || type.startsWith("tuple(") || type.startsWith("(")) {
-            const comps = obj.components != null ? obj.components.map((c)=>ParamType.from(c)) : null;
-            const tuple = new ParamType(_guard$2, name || "", type, "tuple", indexed, comps, null, null);
+        if (type1 === "tuple" || type1.startsWith("tuple(") || type1.startsWith("(")) {
+            const comps1 = obj.components != null ? obj.components.map((c)=>ParamType.from(c)) : null;
+            const tuple = new ParamType(_guard$2, name1 || "", type1, "tuple", indexed1, comps1, null, null);
             return tuple;
         }
-        type = verifyBasicType(obj.type);
-        return new ParamType(_guard$2, name || "", type, type, indexed, null, null, null);
+        type1 = verifyBasicType(obj.type);
+        return new ParamType(_guard$2, name1 || "", type1, type1, indexed1, null, null, null);
     }
     static isParamType(value) {
         return value && value[internal$1] === ParamTypeInternal;
@@ -9525,11 +9525,11 @@ class FallbackFragment extends Fragment {
                 consumeEoi(obj);
                 return new FallbackFragment(_guard$2, [], true);
             }
-            let inputs = consumeParams(obj);
-            if (inputs.length) {
-                assertArgument(inputs.length === 1 && inputs[0].type === "bytes", "invalid fallback inputs", "obj.inputs", inputs.map((i)=>i.format("minimal")).join(", "));
+            let inputs1 = consumeParams(obj);
+            if (inputs1.length) {
+                assertArgument(inputs1.length === 1 && inputs1[0].type === "bytes", "invalid fallback inputs", "obj.inputs", inputs1.map((i)=>i.format("minimal")).join(", "));
             } else {
-                inputs = [
+                inputs1 = [
                     ParamType.from("bytes")
                 ];
             }
@@ -9542,17 +9542,17 @@ class FallbackFragment extends Fragment {
                 assertArgument(outputs.length === 1 && outputs[0].type === "bytes", "invalid fallback outputs", "obj.outputs", outputs.map((i)=>i.format("minimal")).join(", "));
             }
             consumeEoi(obj);
-            return new FallbackFragment(_guard$2, inputs, mutability === "payable");
+            return new FallbackFragment(_guard$2, inputs1, mutability === "payable");
         }
         if (obj.type === "receive") {
             return new FallbackFragment(_guard$2, [], true);
         }
         if (obj.type === "fallback") {
-            const inputs = [
+            const inputs2 = [
                 ParamType.from("bytes")
             ];
             const payable = obj.stateMutability === "payable";
-            return new FallbackFragment(_guard$2, inputs, payable);
+            return new FallbackFragment(_guard$2, inputs2, payable);
         }
         assertArgument(false, "invalid fallback description", "obj", obj);
     }
@@ -9757,7 +9757,7 @@ function getBuiltinCallException(action, tx, data, abiCoder) {
                 };
                 reason = `Panic due to ${PanicReasons$1.get(code) || "UNKNOWN"}(${code})`;
                 message += `: ${reason}`;
-            } catch (error) {
+            } catch (error1) {
                 message += " (could not decode panic code)";
             }
         } else {
@@ -9808,9 +9808,9 @@ class AbiCoder {
         }
         match = param.type.match(paramTypeBytes);
         if (match) {
-            let size = parseInt(match[1]);
-            assertArgument(size !== 0 && size <= 32, "invalid bytes length", "param", param);
-            return new FixedBytesCoder(size, param.name);
+            let size1 = parseInt(match[1]);
+            assertArgument(size1 !== 0 && size1 <= 32, "invalid bytes length", "param", param);
+            return new FixedBytesCoder(size1, param.name);
         }
         assertArgument(false, "invalid type", "type", param.type);
     }
@@ -10077,9 +10077,9 @@ class Interface {
         }
         if (key.indexOf("(") === -1) {
             const matching = [];
-            for (const [name, fragment] of this.#functions){
+            for (const [name, fragment1] of this.#functions){
                 if (name.split("(")[0] === key) {
-                    matching.push(fragment);
+                    matching.push(fragment1);
                 }
             }
             if (values) {
@@ -10090,27 +10090,27 @@ class Interface {
                     allowOptions = false;
                     valueLength--;
                 }
-                for(let i = matching.length - 1; i >= 0; i--){
-                    const inputs = matching[i].inputs.length;
+                for(let i3 = matching.length - 1; i3 >= 0; i3--){
+                    const inputs = matching[i3].inputs.length;
                     if (inputs !== valueLength && (!allowOptions || inputs !== valueLength - 1)) {
-                        matching.splice(i, 1);
+                        matching.splice(i3, 1);
                     }
                 }
-                for(let i = matching.length - 1; i >= 0; i--){
-                    const inputs = matching[i].inputs;
-                    for(let j = 0; j < values.length; j++){
-                        if (!Typed.isTyped(values[j])) {
+                for(let i4 = matching.length - 1; i4 >= 0; i4--){
+                    const inputs1 = matching[i4].inputs;
+                    for(let j2 = 0; j2 < values.length; j2++){
+                        if (!Typed.isTyped(values[j2])) {
                             continue;
                         }
-                        if (j >= inputs.length) {
-                            if (values[j].type === "overrides") {
+                        if (j2 >= inputs1.length) {
+                            if (values[j2].type === "overrides") {
                                 continue;
                             }
-                            matching.splice(i, 1);
+                            matching.splice(i4, 1);
                             break;
                         }
-                        if (values[j].type !== inputs[j].baseType) {
-                            matching.splice(i, 1);
+                        if (values[j2].type !== inputs1[j2].baseType) {
+                            matching.splice(i4, 1);
                             break;
                         }
                     }
@@ -10131,9 +10131,9 @@ class Interface {
             }
             return matching[0];
         }
-        const result = this.#functions.get(FunctionFragment.from(key).format());
-        if (result) {
-            return result;
+        const result4 = this.#functions.get(FunctionFragment.from(key).format());
+        if (result4) {
+            return result4;
         }
         return null;
     }
@@ -10156,54 +10156,54 @@ class Interface {
             callback(this.#functions.get(name), i);
         }
     }
-    #getEvent(key, values, forceUnique) {
-        if (isHexString(key)) {
-            const eventTopic = key.toLowerCase();
-            for (const fragment of this.#events.values()){
-                if (eventTopic === fragment.topicHash) {
-                    return fragment;
+    #getEvent(key1, values1, forceUnique1) {
+        if (isHexString(key1)) {
+            const eventTopic = key1.toLowerCase();
+            for (const fragment2 of this.#events.values()){
+                if (eventTopic === fragment2.topicHash) {
+                    return fragment2;
                 }
             }
             return null;
         }
-        if (key.indexOf("(") === -1) {
-            const matching = [];
-            for (const [name, fragment] of this.#events){
-                if (name.split("(")[0] === key) {
-                    matching.push(fragment);
+        if (key1.indexOf("(") === -1) {
+            const matching1 = [];
+            for (const [name1, fragment3] of this.#events){
+                if (name1.split("(")[0] === key1) {
+                    matching1.push(fragment3);
                 }
             }
-            if (values) {
-                for(let i = matching.length - 1; i >= 0; i--){
-                    if (matching[i].inputs.length < values.length) {
-                        matching.splice(i, 1);
+            if (values1) {
+                for(let i5 = matching1.length - 1; i5 >= 0; i5--){
+                    if (matching1[i5].inputs.length < values1.length) {
+                        matching1.splice(i5, 1);
                     }
                 }
-                for(let i = matching.length - 1; i >= 0; i--){
-                    const inputs = matching[i].inputs;
-                    for(let j = 0; j < values.length; j++){
-                        if (!Typed.isTyped(values[j])) {
+                for(let i6 = matching1.length - 1; i6 >= 0; i6--){
+                    const inputs2 = matching1[i6].inputs;
+                    for(let j3 = 0; j3 < values1.length; j3++){
+                        if (!Typed.isTyped(values1[j3])) {
                             continue;
                         }
-                        if (values[j].type !== inputs[j].baseType) {
-                            matching.splice(i, 1);
+                        if (values1[j3].type !== inputs2[j3].baseType) {
+                            matching1.splice(i6, 1);
                             break;
                         }
                     }
                 }
             }
-            if (matching.length === 0) {
+            if (matching1.length === 0) {
                 return null;
             }
-            if (matching.length > 1 && forceUnique) {
-                const matchStr = matching.map((m)=>JSON.stringify(m.format())).join(", ");
-                assertArgument(false, `ambiguous event description (i.e. matches ${matchStr})`, "key", key);
+            if (matching1.length > 1 && forceUnique1) {
+                const matchStr1 = matching1.map((m)=>JSON.stringify(m.format())).join(", ");
+                assertArgument(false, `ambiguous event description (i.e. matches ${matchStr1})`, "key", key1);
             }
-            return matching[0];
+            return matching1[0];
         }
-        const result = this.#events.get(EventFragment.from(key).format());
-        if (result) {
-            return result;
+        const result5 = this.#events.get(EventFragment.from(key1).format());
+        if (result5) {
+            return result5;
         }
         return null;
     }
@@ -10241,9 +10241,9 @@ class Interface {
         }
         if (key.indexOf("(") === -1) {
             const matching = [];
-            for (const [name, fragment] of this.#errors){
+            for (const [name, fragment1] of this.#errors){
                 if (name.split("(")[0] === key) {
-                    matching.push(fragment);
+                    matching.push(fragment1);
                 }
             }
             if (matching.length === 0) {
@@ -10541,8 +10541,8 @@ class Interface {
             } else {
                 try {
                     value = resultNonIndexed[nonIndexedIndex++];
-                } catch (error) {
-                    value = error;
+                } catch (error1) {
+                    value = error1;
                 }
             }
             values.push(value);
@@ -10620,7 +10620,7 @@ class FeeData {
         });
     }
     toJSON() {
-        const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = this;
+        const { gasPrice , maxFeePerGas , maxPriorityFeePerGas  } = this;
         return {
             _type: "FeeData",
             gasPrice: toJson(gasPrice),
@@ -10648,11 +10648,11 @@ function copyRequest(req) {
         result[key] = getBigInt(req[key], `request.${key}`);
     }
     const numberKeys = "type,nonce".split(/,/);
-    for (const key of numberKeys){
-        if (!(key in req) || req[key] == null) {
+    for (const key1 of numberKeys){
+        if (!(key1 in req) || req[key1] == null) {
             continue;
         }
-        result[key] = getNumber(req[key], `request.${key}`);
+        result[key1] = getNumber(req[key1], `request.${key1}`);
     }
     if (req.accessList) {
         result.accessList = accessListify(req.accessList);
@@ -10749,7 +10749,7 @@ class Block {
         return txs;
     }
     toJSON() {
-        const { baseFeePerGas, difficulty, extraData, gasLimit, gasUsed, hash, miner, prevRandao, nonce, number, parentHash, parentBeaconBlockRoot, stateRoot, receiptsRoot, timestamp, transactions } = this;
+        const { baseFeePerGas , difficulty , extraData , gasLimit , gasUsed , hash , miner , prevRandao , nonce , number , parentHash , parentBeaconBlockRoot , stateRoot , receiptsRoot , timestamp , transactions  } = this;
         return {
             _type: "Block",
             baseFeePerGas: toJson(baseFeePerGas),
@@ -10883,7 +10883,7 @@ class Log {
         });
     }
     toJSON() {
-        const { address, blockHash, blockNumber, data, index, removed, topics, transactionHash, transactionIndex } = this;
+        const { address , blockHash , blockNumber , data , index , removed , topics , transactionHash , transactionIndex  } = this;
         return {
             _type: "log",
             address: address,
@@ -10969,7 +10969,7 @@ class TransactionReceipt {
         return this.#logs;
     }
     toJSON() {
-        const { to, from, contractAddress, hash, index, blockHash, blockNumber, logsBloom, logs, status, root } = this;
+        const { to , from , contractAddress , hash , index , blockHash , blockNumber , logsBloom , logs , status , root  } = this;
         return {
             _type: "TransactionReceipt",
             blockHash: blockHash,
@@ -11089,7 +11089,7 @@ class TransactionResponse {
         this.#startBlock = -1;
     }
     toJSON() {
-        const { blockNumber, blockHash, index, hash, type, to, from, nonce, data, signature, accessList, blobVersionedHashes } = this;
+        const { blockNumber , blockHash , index , hash , type , to , from , nonce , data , signature , accessList , blobVersionedHashes  } = this;
         return {
             _type: "TransactionResponse",
             accessList: accessList,
@@ -11135,7 +11135,7 @@ class TransactionResponse {
     }
     async confirmations() {
         if (this.blockNumber == null) {
-            const { tx, blockNumber } = await resolveProperties({
+            const { tx , blockNumber  } = await resolveProperties({
                 tx: this.getTransaction(),
                 blockNumber: this.provider.getBlockNumber()
             });
@@ -11144,8 +11144,8 @@ class TransactionResponse {
             }
             return blockNumber - tx.blockNumber + 1;
         }
-        const blockNumber = await this.provider.getBlockNumber();
-        return blockNumber - this.blockNumber + 1;
+        const blockNumber1 = await this.provider.getBlockNumber();
+        return blockNumber1 - this.blockNumber + 1;
     }
     async wait(_confirms, _timeout) {
         const confirms = _confirms == null ? 1 : _confirms;
@@ -11157,7 +11157,7 @@ class TransactionResponse {
             if (stopScanning) {
                 return null;
             }
-            const { blockNumber, nonce } = await resolveProperties({
+            const { blockNumber , nonce  } = await resolveProperties({
                 blockNumber: this.provider.getBlockNumber(),
                 nonce: this.provider.getTransactionCount(this.from)
             });
@@ -11872,7 +11872,7 @@ async function getSubInfo(contract, event) {
     };
 }
 async function hasSub(contract, event) {
-    const { subs } = getInternal(contract);
+    const { subs  } = getInternal(contract);
     return subs.get((await getSubInfo(contract, event)).tag) || null;
 }
 async function getSub(contract, operation, event) {
@@ -11880,8 +11880,8 @@ async function getSub(contract, operation, event) {
     assert1(provider, "contract runner does not support subscribing", "UNSUPPORTED_OPERATION", {
         operation: operation
     });
-    const { fragment, tag, topics } = await getSubInfo(contract, event);
-    const { addr, subs } = getInternal(contract);
+    const { fragment , tag , topics  } = await getSubInfo(contract, event);
+    const { addr , subs  } = getInternal(contract);
     let sub = subs.get(tag);
     if (!sub) {
         const address = addr ? addr : contract;
@@ -11942,7 +11942,7 @@ async function _emit(contract, event, args, payloadFunc) {
         return false;
     }
     const count = sub.listeners.length;
-    sub.listeners = sub.listeners.filter(({ listener, once })=>{
+    sub.listeners = sub.listeners.filter(({ listener , once  })=>{
         const passArgs = Array.from(args);
         if (payloadFunc) {
             passArgs.push(payloadFunc(once ? null : listener));
@@ -12158,9 +12158,9 @@ class BaseContract {
         if (toBlock == null) {
             toBlock = "latest";
         }
-        const { addr, addrPromise } = getInternal(this);
+        const { addr , addrPromise  } = getInternal(this);
         const address = addr ? addr : await addrPromise;
-        const { fragment, topics } = await getSubInfo(this, event);
+        const { fragment , topics  } = await getSubInfo(this, event);
         const filter = {
             address: address,
             topics: topics,
@@ -12181,8 +12181,8 @@ class BaseContract {
             if (foundFragment) {
                 try {
                     return new EventLog(log, this.interface, foundFragment);
-                } catch (error) {
-                    return new UndecodedEventLog(log, error);
+                } catch (error1) {
+                    return new UndecodedEventLog(log, error1);
                 }
             }
             return new Log(log, provider);
@@ -12217,9 +12217,9 @@ class BaseContract {
             }
             return sub.listeners.length;
         }
-        const { subs } = getInternal(this);
+        const { subs  } = getInternal(this);
         let total = 0;
-        for (const { listeners } of subs.values()){
+        for (const { listeners  } of subs.values()){
             total += listeners.length;
         }
         return total;
@@ -12230,12 +12230,12 @@ class BaseContract {
             if (!sub) {
                 return [];
             }
-            return sub.listeners.map(({ listener })=>listener);
+            return sub.listeners.map(({ listener  })=>listener);
         }
-        const { subs } = getInternal(this);
+        const { subs  } = getInternal(this);
         let result = [];
-        for (const { listeners } of subs.values()){
-            result = result.concat(listeners.map(({ listener })=>listener));
+        for (const { listeners  } of subs.values()){
+            result = result.concat(listeners.map(({ listener  })=>listener));
         }
         return result;
     }
@@ -12245,7 +12245,7 @@ class BaseContract {
             return this;
         }
         if (listener) {
-            const index = sub.listeners.map(({ listener })=>listener).indexOf(listener);
+            const index = sub.listeners.map(({ listener  })=>listener).indexOf(listener);
             if (index >= 0) {
                 sub.listeners.splice(index, 1);
             }
@@ -12265,8 +12265,8 @@ class BaseContract {
             sub.stop();
             getInternal(this).subs.delete(sub.tag);
         } else {
-            const { subs } = getInternal(this);
-            for (const { tag, stop } of subs.values()){
+            const { subs  } = getInternal(this);
+            for (const { tag , stop  } of subs.values()){
                 stop();
                 subs.delete(tag);
             }
@@ -12450,17 +12450,17 @@ class EnsResolver {
         params = (params || []).slice();
         const iface = this.#resolver.interface;
         params.unshift(namehash(this.name));
-        let fragment = null;
+        let fragment4 = null;
         if (await this.supportsWildcard()) {
-            fragment = iface.getFunction(funcName);
-            assert1(fragment, "missing fragment", "UNKNOWN_ERROR", {
+            fragment4 = iface.getFunction(funcName);
+            assert1(fragment4, "missing fragment", "UNKNOWN_ERROR", {
                 info: {
                     funcName: funcName
                 }
             });
             params = [
                 dnsEncode(this.name, 255),
-                iface.encodeFunctionData(fragment, params)
+                iface.encodeFunctionData(fragment4, params)
             ];
             funcName = "resolve(bytes,bytes)";
         }
@@ -12468,14 +12468,14 @@ class EnsResolver {
             enableCcipRead: true
         });
         try {
-            const result = await this.#resolver[funcName](...params);
-            if (fragment) {
-                return iface.decodeFunctionResult(fragment, result)[0];
+            const result6 = await this.#resolver[funcName](...params);
+            if (fragment4) {
+                return iface.decodeFunctionResult(fragment4, result6)[0];
             }
-            return result;
-        } catch (error) {
-            if (!isError(error, "CALL_EXCEPTION")) {
-                throw error;
+            return result6;
+        } catch (error3) {
+            if (!isError(error3, "CALL_EXCEPTION")) {
+                throw error3;
             }
         }
         return null;
@@ -12520,13 +12520,13 @@ class EnsResolver {
         if (coinPlugin == null) {
             return null;
         }
-        const data = await this.#fetch("addr(bytes32,uint)", [
+        const data1 = await this.#fetch("addr(bytes32,uint)", [
             coinType
         ]);
-        if (data == null || data === "0x") {
+        if (data1 == null || data1 === "0x") {
             return null;
         }
-        const address = await coinPlugin.decodeAddress(coinType, data);
+        const address = await coinPlugin.decodeAddress(coinType, data1);
         if (address != null) {
             return address;
         }
@@ -12534,7 +12534,7 @@ class EnsResolver {
             operation: `getAddress(${coinType})`,
             info: {
                 coinType: coinType,
-                data: data
+                data: data1
             }
         });
     }
@@ -12735,7 +12735,7 @@ class EnsResolver {
                             response.assertOk();
                             try {
                                 metadata = response.bodyJson;
-                            } catch (error) {
+                            } catch (error1) {
                                 try {
                                     linkage.push({
                                         type: "!metadata",
@@ -12813,7 +12813,7 @@ class EnsResolver {
                         }
                 }
             }
-        } catch (error) {}
+        } catch (error2) {}
         return {
             linkage: linkage,
             url: null
@@ -12830,21 +12830,21 @@ class EnsResolver {
         });
         return ensPlugin.address;
     }
-    static async #getResolver(provider, name) {
+    static async #getResolver(provider, name2) {
         const ensAddr = await EnsResolver.getEnsAddress(provider);
         try {
             const contract = new Contract(ensAddr, [
                 "function resolver(bytes32) view returns (address)"
             ], provider);
-            const addr = await contract.resolver(namehash(name), {
+            const addr = await contract.resolver(namehash(name2), {
                 enableCcipRead: true
             });
             if (addr === ZeroAddress) {
                 return null;
             }
             return addr;
-        } catch (error) {
-            throw error;
+        } catch (error4) {
+            throw error4;
         }
         return null;
     }
@@ -13236,14 +13236,14 @@ class Network {
         if (typeof other === "number" || typeof other === "bigint") {
             try {
                 return this.chainId === getBigInt(other);
-            } catch (error) {}
+            } catch (error1) {}
             return false;
         }
         if (typeof other === "object") {
             if (other.chainId != null) {
                 try {
                     return this.chainId === getBigInt(other.chainId);
-                } catch (error) {}
+                } catch (error2) {}
                 return false;
             }
             if (other.name != null) {
@@ -13517,15 +13517,15 @@ class PollingBlockSubscriber {
                 return;
             }
             if (blockNumber !== this.#blockNumber) {
-                for(let b = this.#blockNumber + 1; b <= blockNumber; b++){
+                for(let b1 = this.#blockNumber + 1; b1 <= blockNumber; b1++){
                     if (this.#poller == null) {
                         return;
                     }
-                    await this.#provider.emit("block", b);
+                    await this.#provider.emit("block", b1);
                 }
                 this.#blockNumber = blockNumber;
             }
-        } catch (error) {}
+        } catch (error5) {}
         if (this.#poller == null) {
             return;
         }
@@ -13654,17 +13654,17 @@ class PollingEventSubscriber {
         this.#running = false;
         this.#blockNumber = -2;
     }
-    async #poll(blockNumber) {
+    async #poll(blockNumber1) {
         if (this.#blockNumber === -2) {
             return;
         }
         const filter = copy$2(this.#filter);
         filter.fromBlock = this.#blockNumber + 1;
-        filter.toBlock = blockNumber;
+        filter.toBlock = blockNumber1;
         const logs = await this.#provider.getLogs(filter);
         if (logs.length === 0) {
-            if (this.#blockNumber < blockNumber - 60) {
-                this.#blockNumber = blockNumber - 60;
+            if (this.#blockNumber < blockNumber1 - 60) {
+                this.#blockNumber = blockNumber1 - 60;
             }
             return;
         }
@@ -13793,9 +13793,9 @@ async function getSubscription(_event, provider) {
         };
     }
     if (_event.address || _event.topics) {
-        const event = _event;
+        const event1 = _event;
         const filter = {
-            topics: (event.topics || []).map((t)=>{
+            topics: (event1.topics || []).map((t)=>{
                 if (t == null) {
                     return null;
                 }
@@ -13805,7 +13805,7 @@ async function getSubscription(_event, provider) {
                 return t.toLowerCase();
             })
         };
-        if (event.address) {
+        if (event1.address) {
             const addresses = [];
             const promises = [];
             const addAddress = (addr)=>{
@@ -13817,10 +13817,10 @@ async function getSubscription(_event, provider) {
                     })());
                 }
             };
-            if (Array.isArray(event.address)) {
-                event.address.forEach(addAddress);
+            if (Array.isArray(event1.address)) {
+                event1.address.forEach(addAddress);
             } else {
-                addAddress(event.address);
+                addAddress(event1.address);
             }
             if (promises.length) {
                 await Promise.all(promises);
@@ -13906,15 +13906,15 @@ class AbstractProvider {
     set disableCcipRead(value) {
         this.#disableCcipRead = !!value;
     }
-    async #perform(req) {
+    async #perform(req1) {
         const timeout = this.#options.cacheTimeout;
         if (timeout < 0) {
-            return await this._perform(req);
+            return await this._perform(req1);
         }
-        const tag = getTag(req.method, req);
+        const tag = getTag(req1.method, req1);
         let perform = this.#performCache.get(tag);
         if (!perform) {
-            perform = this._perform(req);
+            perform = this._perform(req1);
             this.#performCache.set(tag, perform);
             setTimeout(()=>{
                 if (this.#performCache.get(tag) === perform) {
@@ -13980,7 +13980,7 @@ class AbstractProvider {
                     request: request,
                     result: result
                 });
-            } catch (error) {}
+            } catch (error1) {}
             assert1(resp.statusCode < 400 || resp.statusCode >= 500, `response not found during CCIP fetch: ${errorMessage}`, "OFFCHAIN_FAULT", {
                 reason: "404_MISSING_RESOURCE",
                 transaction: tx,
@@ -14219,7 +14219,7 @@ class AbstractProvider {
     async getFeeData() {
         const network = await this.getNetwork();
         const getFeeDataFunc = async ()=>{
-            const { _block, gasPrice, priorityFee } = await resolveProperties({
+            const { _block , gasPrice , priorityFee  } = await resolveProperties({
                 _block: this.#getBlock("latest", false),
                 gasPrice: (async ()=>{
                     try {
@@ -14267,8 +14267,8 @@ class AbstractProvider {
             transaction: tx
         }), "%response");
     }
-    async #call(tx, blockTag, attempt) {
-        assert1(attempt < 10, "CCIP read exceeded maximum redirections", "OFFCHAIN_FAULT", {
+    async #call(tx, blockTag, attempt1) {
+        assert1(attempt1 < 10, "CCIP read exceeded maximum redirections", "OFFCHAIN_FAULT", {
             reason: "TOO_MANY_REDIRECTS",
             transaction: Object.assign({}, tx, {
                 blockTag: blockTag,
@@ -14282,25 +14282,25 @@ class AbstractProvider {
                 transaction: transaction,
                 blockTag: blockTag
             }));
-        } catch (error) {
-            if (!this.disableCcipRead && isCallException(error) && error.data && attempt >= 0 && blockTag === "latest" && transaction.to != null && dataSlice(error.data, 0, 4) === "0x556f1830") {
-                const data = error.data;
+        } catch (error8) {
+            if (!this.disableCcipRead && isCallException(error8) && error8.data && attempt1 >= 0 && blockTag === "latest" && transaction.to != null && dataSlice(error8.data, 0, 4) === "0x556f1830") {
+                const data1 = error8.data;
                 const txSender = await resolveAddress(transaction.to, this);
                 let ccipArgs;
                 try {
-                    ccipArgs = parseOffchainLookup(dataSlice(error.data, 4));
-                } catch (error) {
-                    assert1(false, error.message, "OFFCHAIN_FAULT", {
+                    ccipArgs = parseOffchainLookup(dataSlice(error8.data, 4));
+                } catch (error6) {
+                    assert1(false, error6.message, "OFFCHAIN_FAULT", {
                         reason: "BAD_DATA",
                         transaction: transaction,
                         info: {
-                            data: data
+                            data: data1
                         }
                     });
                 }
                 assert1(ccipArgs.sender.toLowerCase() === txSender.toLowerCase(), "CCIP Read sender mismatch", "CALL_EXCEPTION", {
                     action: "call",
-                    data: data,
+                    data: data1,
                     reason: "OffchainLookup",
                     transaction: transaction,
                     invocation: null,
@@ -14315,11 +14315,11 @@ class AbstractProvider {
                     reason: "FETCH_FAILED",
                     transaction: transaction,
                     info: {
-                        data: error.data,
+                        data: error8.data,
                         errorArgs: ccipArgs.errorArgs
                     }
                 });
-                const tx = {
+                const tx1 = {
                     to: txSender,
                     data: concat([
                         ccipArgs.selector,
@@ -14331,37 +14331,37 @@ class AbstractProvider {
                 };
                 this.emit("debug", {
                     action: "sendCcipReadCall",
-                    transaction: tx
+                    transaction: tx1
                 });
                 try {
-                    const result = await this.#call(tx, blockTag, attempt + 1);
+                    const result7 = await this.#call(tx1, blockTag, attempt1 + 1);
                     this.emit("debug", {
                         action: "receiveCcipReadCallResult",
-                        transaction: Object.assign({}, tx),
-                        result: result
+                        transaction: Object.assign({}, tx1),
+                        result: result7
                     });
-                    return result;
-                } catch (error) {
+                    return result7;
+                } catch (error7) {
                     this.emit("debug", {
                         action: "receiveCcipReadCallError",
-                        transaction: Object.assign({}, tx),
-                        error: error
+                        transaction: Object.assign({}, tx1),
+                        error: error7
                     });
-                    throw error;
+                    throw error7;
                 }
             }
-            throw error;
+            throw error8;
         }
     }
     async #checkNetwork(promise) {
-        const { value } = await resolveProperties({
+        const { value: value1  } = await resolveProperties({
             network: this.getNetwork(),
             value: promise
         });
-        return value;
+        return value1;
     }
     async call(_tx) {
-        const { tx, blockTag } = await resolveProperties({
+        const { tx , blockTag  } = await resolveProperties({
             tx: this._getTransactionRequest(_tx),
             blockTag: this._getBlockTag(_tx.blockTag)
         });
@@ -14369,16 +14369,16 @@ class AbstractProvider {
     }
     async #getAccountValue(request, _address, _blockTag) {
         let address = this._getAddress(_address);
-        let blockTag = this._getBlockTag(_blockTag);
-        if (typeof address !== "string" || typeof blockTag !== "string") {
-            [address, blockTag] = await Promise.all([
+        let blockTag1 = this._getBlockTag(_blockTag);
+        if (typeof address !== "string" || typeof blockTag1 !== "string") {
+            [address, blockTag1] = await Promise.all([
                 address,
-                blockTag
+                blockTag1
             ]);
         }
         return await this.#checkNetwork(this.#perform(Object.assign(request, {
             address: address,
-            blockTag: blockTag
+            blockTag: blockTag1
         })));
     }
     async getBalance(address, blockTag) {
@@ -14404,7 +14404,7 @@ class AbstractProvider {
         }, address, blockTag));
     }
     async broadcastTransaction(signedTx) {
-        const { blockNumber, hash, network } = await resolveProperties({
+        const { blockNumber , hash , network  } = await resolveProperties({
             blockNumber: this.getBlockNumber(),
             hash: this._perform({
                 method: "broadcastTransaction",
@@ -14426,18 +14426,18 @@ class AbstractProvider {
                 includeTransactions: includeTransactions
             });
         }
-        let blockTag = this._getBlockTag(block);
-        if (typeof blockTag !== "string") {
-            blockTag = await blockTag;
+        let blockTag2 = this._getBlockTag(block);
+        if (typeof blockTag2 !== "string") {
+            blockTag2 = await blockTag2;
         }
         return await this.#perform({
             method: "getBlock",
-            blockTag: blockTag,
+            blockTag: blockTag2,
             includeTransactions: includeTransactions
         });
     }
     async getBlock(block, prefetchTxs) {
-        const { network, params } = await resolveProperties({
+        const { network , params  } = await resolveProperties({
             network: this.getNetwork(),
             params: this.#getBlock(block, !!prefetchTxs)
         });
@@ -14447,7 +14447,7 @@ class AbstractProvider {
         return this._wrapBlock(params, network);
     }
     async getTransaction(hash) {
-        const { network, params } = await resolveProperties({
+        const { network , params  } = await resolveProperties({
             network: this.getNetwork(),
             params: this.#perform({
                 method: "getTransaction",
@@ -14460,7 +14460,7 @@ class AbstractProvider {
         return this._wrapTransactionResponse(params, network);
     }
     async getTransactionReceipt(hash) {
-        const { network, params } = await resolveProperties({
+        const { network , params  } = await resolveProperties({
             network: this.getNetwork(),
             params: this.#perform({
                 method: "getTransactionReceipt",
@@ -14483,7 +14483,7 @@ class AbstractProvider {
         return this._wrapTransactionReceipt(params, network);
     }
     async getTransactionResult(hash) {
-        const { result } = await resolveProperties({
+        const { result  } = await resolveProperties({
             network: this.getNetwork(),
             result: this.#perform({
                 method: "getTransactionResult",
@@ -14500,7 +14500,7 @@ class AbstractProvider {
         if (isPromise$1(filter)) {
             filter = await filter;
         }
-        const { network, params } = await resolveProperties({
+        const { network , params  } = await resolveProperties({
             network: this.getNetwork(),
             params: this.#perform({
                 method: "getLogs",
@@ -14699,25 +14699,25 @@ class AbstractProvider {
         }
         return this.#subs.get(sub.tag) || null;
     }
-    async #getSub(event) {
-        const subscription = await getSubscription(event, this);
-        const tag = subscription.tag;
-        let sub = this.#subs.get(tag);
-        if (!sub) {
+    async #getSub(event1) {
+        const subscription = await getSubscription(event1, this);
+        const tag1 = subscription.tag;
+        let sub1 = this.#subs.get(tag1);
+        if (!sub1) {
             const subscriber = this._getSubscriber(subscription);
             const addressableMap = new WeakMap;
             const nameMap = new Map;
-            sub = {
+            sub1 = {
                 subscriber: subscriber,
-                tag: tag,
+                tag: tag1,
                 addressableMap: addressableMap,
                 nameMap: nameMap,
                 started: false,
                 listeners: []
             };
-            this.#subs.set(tag, sub);
+            this.#subs.set(tag1, sub1);
         }
-        return sub;
+        return sub1;
     }
     async on(event, listener) {
         const sub = await this.#getSub(event);
@@ -14755,7 +14755,7 @@ class AbstractProvider {
             return false;
         }
         const count = sub.listeners.length;
-        sub.listeners = sub.listeners.filter(({ listener, once })=>{
+        sub.listeners = sub.listeners.filter(({ listener , once  })=>{
             const payload = new EventPayload(this, once ? null : listener, event);
             try {
                 listener.call(this, ...args, payload);
@@ -14779,7 +14779,7 @@ class AbstractProvider {
             return sub.listeners.length;
         }
         let total = 0;
-        for (const { listeners } of this.#subs.values()){
+        for (const { listeners  } of this.#subs.values()){
             total += listeners.length;
         }
         return total;
@@ -14790,11 +14790,11 @@ class AbstractProvider {
             if (!sub) {
                 return [];
             }
-            return sub.listeners.map(({ listener })=>listener);
+            return sub.listeners.map(({ listener  })=>listener);
         }
         let result = [];
-        for (const { listeners } of this.#subs.values()){
-            result = result.concat(listeners.map(({ listener })=>listener));
+        for (const { listeners  } of this.#subs.values()){
+            result = result.concat(listeners.map(({ listener  })=>listener));
         }
         return result;
     }
@@ -14804,7 +14804,7 @@ class AbstractProvider {
             return this;
         }
         if (listener) {
-            const index = sub.listeners.map(({ listener })=>listener).indexOf(listener);
+            const index = sub.listeners.map(({ listener  })=>listener).indexOf(listener);
             if (index >= 0) {
                 sub.listeners.splice(index, 1);
             }
@@ -14819,17 +14819,17 @@ class AbstractProvider {
     }
     async removeAllListeners(event) {
         if (event) {
-            const { tag, started, subscriber } = await this.#getSub(event);
+            const { tag , started , subscriber  } = await this.#getSub(event);
             if (started) {
                 subscriber.stop();
             }
             this.#subs.delete(tag);
         } else {
-            for (const [tag, { started, subscriber }] of this.#subs){
-                if (started) {
-                    subscriber.stop();
+            for (const [tag1, { started: started1 , subscriber: subscriber1  }] of this.#subs){
+                if (started1) {
+                    subscriber1.stop();
                 }
-                this.#subs.delete(tag);
+                this.#subs.delete(tag1);
             }
         }
         return this;
@@ -14943,9 +14943,9 @@ function encodeBytes(datas) {
         result.push(empty);
         byteCount += 32;
     }
-    for(let i = 0; i < datas.length; i++){
-        const data = getBytes(datas[i]);
-        result[i] = numPad(byteCount);
+    for(let i1 = 0; i1 < datas.length; i1++){
+        const data = getBytes(datas[i1]);
+        result[i1] = numPad(byteCount);
         result.push(numPad(data.length));
         result.push(bytesPad(data));
         byteCount += 32 + Math.ceil(data.length / 32) * 32;
@@ -14994,7 +14994,7 @@ function parseOffchainLookup(data) {
             throw new Error("abort");
         }
         result.calldata = calldata;
-    } catch (error) {
+    } catch (error1) {
         assert1(false, "corrupt OffchainLookup calldata", "OFFCHAIN_FAULT", {
             reason: "corrupt OffchainLookup calldata"
         });
@@ -15009,7 +15009,7 @@ function parseOffchainLookup(data) {
             throw new Error("abort");
         }
         result.extraData = extraData;
-    } catch (error) {
+    } catch (error2) {
         assert1(false, "corrupt OffchainLookup extraData", "OFFCHAIN_FAULT", {
             reason: "corrupt OffchainLookup extraData"
         });
@@ -15091,9 +15091,9 @@ class AbstractSigner {
                 pop.gasPrice = feeData.gasPrice;
             }
         } else {
-            const feeData = await provider.getFeeData();
+            const feeData1 = await provider.getFeeData();
             if (pop.type == null) {
-                if (feeData.maxFeePerGas != null && feeData.maxPriorityFeePerGas != null) {
+                if (feeData1.maxFeePerGas != null && feeData1.maxPriorityFeePerGas != null) {
                     pop.type = 2;
                     if (pop.gasPrice != null) {
                         const gasPrice = pop.gasPrice;
@@ -15102,18 +15102,18 @@ class AbstractSigner {
                         pop.maxPriorityFeePerGas = gasPrice;
                     } else {
                         if (pop.maxFeePerGas == null) {
-                            pop.maxFeePerGas = feeData.maxFeePerGas;
+                            pop.maxFeePerGas = feeData1.maxFeePerGas;
                         }
                         if (pop.maxPriorityFeePerGas == null) {
-                            pop.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
+                            pop.maxPriorityFeePerGas = feeData1.maxPriorityFeePerGas;
                         }
                     }
-                } else if (feeData.gasPrice != null) {
+                } else if (feeData1.gasPrice != null) {
                     assert1(!hasEip1559, "network does not support EIP-1559", "UNSUPPORTED_OPERATION", {
                         operation: "populateTransaction"
                     });
                     if (pop.gasPrice == null) {
-                        pop.gasPrice = feeData.gasPrice;
+                        pop.gasPrice = feeData1.gasPrice;
                     }
                     pop.type = 0;
                 } else {
@@ -15123,10 +15123,10 @@ class AbstractSigner {
                 }
             } else if (pop.type === 2 || pop.type === 3) {
                 if (pop.maxFeePerGas == null) {
-                    pop.maxFeePerGas = feeData.maxFeePerGas;
+                    pop.maxFeePerGas = feeData1.maxFeePerGas;
                 }
                 if (pop.maxPriorityFeePerGas == null) {
-                    pop.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
+                    pop.maxPriorityFeePerGas = feeData1.maxPriorityFeePerGas;
                 }
             }
         }
@@ -15225,7 +15225,7 @@ class FilterIdSubscriber {
     _recover(provider) {
         throw new Error("subclasses must override this");
     }
-    async #poll(blockNumber) {
+    async #poll(blockNumber2) {
         try {
             if (this.#filterIdPromise == null) {
                 this.#filterIdPromise = this._subscribe(this.#provider);
@@ -15233,9 +15233,9 @@ class FilterIdSubscriber {
             let filterId = null;
             try {
                 filterId = await this.#filterIdPromise;
-            } catch (error) {
-                if (!isError(error, "UNSUPPORTED_OPERATION") || error.operation !== "eth_newFilter") {
-                    throw error;
+            } catch (error9) {
+                if (!isError(error9, "UNSUPPORTED_OPERATION") || error9.operation !== "eth_newFilter") {
+                    throw error9;
                 }
             }
             if (filterId == null) {
@@ -15253,12 +15253,12 @@ class FilterIdSubscriber {
             if (this.#hault) {
                 return;
             }
-            const result = await this.#provider.send("eth_getFilterChanges", [
+            const result8 = await this.#provider.send("eth_getFilterChanges", [
                 filterId
             ]);
-            await this._emitResults(this.#provider, result);
-        } catch (error) {
-            console.log("@TODO", error);
+            await this._emitResults(this.#provider, result8);
+        } catch (error10) {
+            console.log("@TODO", error10);
         }
         this.#provider.once("block", this.#poller);
     }
@@ -15569,19 +15569,19 @@ class JsonRpcApiProvider extends AbstractProvider {
                             action: "receiveRpcResult",
                             result: result
                         });
-                        for (const { resolve, reject, payload } of batch){
+                        for (const { resolve , reject , payload: payload1  } of batch){
                             if (this.destroyed) {
                                 reject(makeError("provider destroyed; cancelled request", "UNSUPPORTED_OPERATION", {
-                                    operation: payload.method
+                                    operation: payload1.method
                                 }));
                                 continue;
                             }
-                            const resp = result.filter((r)=>r.id === payload.id)[0];
+                            const resp = result.filter((r)=>r.id === payload1.id)[0];
                             if (resp == null) {
                                 const error = makeError("missing response for request", "BAD_DATA", {
                                     value: result,
                                     info: {
-                                        payload: payload
+                                        payload: payload1
                                     }
                                 });
                                 this.emit("error", error);
@@ -15589,18 +15589,18 @@ class JsonRpcApiProvider extends AbstractProvider {
                                 continue;
                             }
                             if ("error" in resp) {
-                                reject(this.getRpcError(payload, resp));
+                                reject(this.getRpcError(payload1, resp));
                                 continue;
                             }
                             resolve(resp.result);
                         }
-                    } catch (error) {
+                    } catch (error1) {
                         this.emit("debug", {
                             action: "receiveRpcError",
-                            error: error
+                            error: error1
                         });
-                        for (const { reject } of batch){
-                            reject(error);
+                        for (const { reject: reject1  } of batch){
+                            reject1(error1);
                         }
                     }
                 })();
@@ -15946,8 +15946,8 @@ class JsonRpcApiProvider extends AbstractProvider {
         return null;
     }
     getRpcError(payload, _error) {
-        const { method } = payload;
-        const { error } = _error;
+        const { method  } = payload;
+        const { error  } = _error;
         if (method === "eth_estimateGas" && error.message) {
             const msg = error.message;
             if (!msg.match(/revert/i) && msg.match(/insufficient funds/i)) {
@@ -16081,12 +16081,12 @@ class JsonRpcApiProvider extends AbstractProvider {
             }
             return new JsonRpcSigner(this, accounts[address]);
         }
-        const { accounts } = await resolveProperties({
+        const { accounts: accounts1  } = await resolveProperties({
             network: this.getNetwork(),
             accounts: accountsPromise
         });
         address = getAddress(address);
-        for (const account of accounts){
+        for (const account of accounts1){
             if (getAddress(account) === address) {
                 return new JsonRpcSigner(this, address);
             }
@@ -16102,7 +16102,7 @@ class JsonRpcApiProvider extends AbstractProvider {
             clearTimeout(this.#drainTimer);
             this.#drainTimer = null;
         }
-        for (const { payload, reject } of this.#payloads){
+        for (const { payload , reject  } of this.#payloads){
             reject(makeError("provider destroyed; cancelled request", "UNSUPPORTED_OPERATION", {
                 operation: payload.method
             }));
@@ -16375,7 +16375,7 @@ class AlchemyProvider extends JsonRpcProvider {
     }
     async _perform(req) {
         if (req.method === "getTransactionResult") {
-            const { trace, tx } = await resolveProperties({
+            const { trace , tx  } = await resolveProperties({
                 trace: this.send("trace_transaction", [
                     req.hash
                 ]),
@@ -16389,7 +16389,7 @@ class AlchemyProvider extends JsonRpcProvider {
             try {
                 data = trace[0].result.output;
                 error = trace[0].error === "Reverted";
-            } catch (error) {}
+            } catch (error1) {}
             if (data) {
                 assert1(!error, "an error occurred during transaction executions", "CALL_EXCEPTION", {
                     action: "getTransactionResult",
@@ -16803,7 +16803,7 @@ class EtherscanProvider extends AbstractProvider {
             if (!message) {
                 try {
                     message = error.info.message;
-                } catch (e) {}
+                } catch (e1) {}
             }
         }
         if (req.method === "estimateGas") {
@@ -16818,31 +16818,31 @@ class EtherscanProvider extends AbstractProvider {
                 let data = "";
                 try {
                     data = error.info.result.error.data;
-                } catch (error) {}
-                const e = AbiCoder.getBuiltinCallException(req.method, req.transaction, data);
-                e.info = {
+                } catch (error1) {}
+                const e2 = AbiCoder.getBuiltinCallException(req.method, req.transaction, data);
+                e2.info = {
                     request: req,
                     error: error
                 };
-                throw e;
+                throw e2;
             }
         }
         if (message) {
             if (req.method === "broadcastTransaction") {
-                const transaction = Transaction.from(req.signedTransaction);
+                const transaction1 = Transaction.from(req.signedTransaction);
                 if (message.match(/replacement/i) && message.match(/underpriced/i)) {
                     assert1(false, "replacement fee too low", "REPLACEMENT_UNDERPRICED", {
-                        transaction: transaction
+                        transaction: transaction1
                     });
                 }
                 if (message.match(/insufficient funds/)) {
                     assert1(false, "insufficient funds for intrinsic transaction cost", "INSUFFICIENT_FUNDS", {
-                        transaction: transaction
+                        transaction: transaction1
                     });
                 }
                 if (message.match(/same hash was already imported|transaction nonce is too low|nonce too low/)) {
                     assert1(false, "nonce has already been used", "NONCE_EXPIRED", {
-                        transaction: transaction
+                        transaction: transaction1
                     });
                 }
             }
@@ -16941,13 +16941,13 @@ class EtherscanProvider extends AbstractProvider {
                 }
             case "estimateGas":
                 {
-                    const postData = this._getTransactionPostData(req.transaction);
-                    postData.module = "proxy";
-                    postData.action = "eth_estimateGas";
+                    const postData1 = this._getTransactionPostData(req.transaction);
+                    postData1.module = "proxy";
+                    postData1.action = "eth_estimateGas";
                     try {
-                        return await this.fetch("proxy", postData, true);
-                    } catch (error) {
-                        return this._checkError(req, error, req.transaction);
+                        return await this.fetch("proxy", postData1, true);
+                    } catch (error1) {
+                        return this._checkError(req, error1, req.transaction);
                     }
                 }
         }
@@ -17565,7 +17565,7 @@ function normalizeResult(value) {
 }
 function checkQuorum(quorum, results) {
     const tally = new Map;
-    for (const { value, tag, weight } of results){
+    for (const { value , tag , weight  } of results){
         const t = tally.get(tag) || {
             value: value,
             weight: 0
@@ -17589,7 +17589,7 @@ function getMedian(quorum, results) {
     const errorMap = new Map;
     let bestError = null;
     const values = [];
-    for (const { value, tag, weight } of results){
+    for (const { value , tag , weight  } of results){
         if (value instanceof Error) {
             const e = errorMap.get(tag) || {
                 value: value,
@@ -17643,7 +17643,7 @@ function getFuzzyMode(quorum, results) {
         t.weight += weight;
         tally.set(result, t);
     };
-    for (const { weight, value } of results){
+    for (const { weight , value  } of results){
         const r = getNumber(value);
         add(r - 1, weight);
         add(r, weight);
@@ -17651,9 +17651,9 @@ function getFuzzyMode(quorum, results) {
     }
     let bestWeight = 0;
     let bestResult = undefined;
-    for (const { weight, result } of tally.values()){
-        if (weight >= quorum && (weight > bestWeight || bestResult != null && weight === bestWeight && result > bestResult)) {
-            bestWeight = weight;
+    for (const { weight: weight1 , result  } of tally.values()){
+        if (weight1 >= quorum && (weight1 > bestWeight || bestResult != null && weight1 === bestWeight && result > bestResult)) {
+            bestWeight = weight1;
             bestResult = result;
         }
     }
@@ -17763,13 +17763,13 @@ class FallbackProvider extends AbstractProvider {
         }
         return null;
     }
-    #addRunner(running, req) {
-        const config = this.#getNextConfig(running);
-        if (config == null) {
+    #addRunner(running1, req2) {
+        const config1 = this.#getNextConfig(running1);
+        if (config1 == null) {
             return null;
         }
         const runner = {
-            config: config,
+            config: config1,
             result: null,
             didBump: false,
             perform: null,
@@ -17778,35 +17778,35 @@ class FallbackProvider extends AbstractProvider {
         const now = getTime();
         runner.perform = (async ()=>{
             try {
-                config.requests++;
-                const result = await this._translatePerform(config.provider, req);
+                config1.requests++;
+                const result = await this._translatePerform(config1.provider, req2);
                 runner.result = {
                     result: result
                 };
             } catch (error) {
-                config.errorResponses++;
+                config1.errorResponses++;
                 runner.result = {
                     error: error
                 };
             }
             const dt = getTime() - now;
-            config._totalTime += dt;
-            config.rollingDuration = .95 * config.rollingDuration + .05 * dt;
+            config1._totalTime += dt;
+            config1.rollingDuration = .95 * config1.rollingDuration + .05 * dt;
             runner.perform = null;
         })();
         runner.staller = (async ()=>{
-            await stall$2(config.stallTimeout);
+            await stall$2(config1.stallTimeout);
             runner.staller = null;
         })();
-        running.add(runner);
+        running1.add(runner);
         return runner;
     }
     async #initialSync() {
         let initialSync = this.#initialSyncPromise;
         if (!initialSync) {
-            const promises = [];
+            const promises1 = [];
             this.#configs.forEach((config)=>{
-                promises.push((async ()=>{
+                promises1.push((async ()=>{
                     await waitForSync(config, 0);
                     if (!config._lastFatalError) {
                         config._network = await config.provider.getNetwork();
@@ -17814,7 +17814,7 @@ class FallbackProvider extends AbstractProvider {
                 })());
             });
             this.#initialSyncPromise = initialSync = (async ()=>{
-                await Promise.all(promises);
+                await Promise.all(promises1);
                 let chainId = null;
                 for (const config of this.#configs){
                     if (config._lastFatalError) {
@@ -17833,22 +17833,22 @@ class FallbackProvider extends AbstractProvider {
         }
         await initialSync;
     }
-    async #checkQuorum(running, req) {
+    async #checkQuorum(running2, req3) {
         const results = [];
-        for (const runner of running){
-            if (runner.result != null) {
-                const { tag, value } = normalizeResult(runner.result);
+        for (const runner1 of running2){
+            if (runner1.result != null) {
+                const { tag: tag2 , value: value2  } = normalizeResult(runner1.result);
                 results.push({
-                    tag: tag,
-                    value: value,
-                    weight: runner.config.weight
+                    tag: tag2,
+                    value: value2,
+                    weight: runner1.config.weight
                 });
             }
         }
         if (results.reduce((a, r)=>a + r.weight, 0) < this.quorum) {
             return undefined;
         }
-        switch(req.method){
+        switch(req3.method){
             case "getBlockNumber":
                 {
                     if (this.#height === -2) {
@@ -17872,7 +17872,7 @@ class FallbackProvider extends AbstractProvider {
             case "estimateGas":
                 return getMedian(this.quorum, results);
             case "getBlock":
-                if ("blockTag" in req && req.blockTag === "pending") {
+                if ("blockTag" in req3 && req3.blockTag === "pending") {
                     return getAnyResult(this.quorum, results);
                 }
                 return checkQuorum(this.quorum, results);
@@ -17890,53 +17890,53 @@ class FallbackProvider extends AbstractProvider {
                 return getAnyResult(this.quorum, results);
         }
         assert1(false, "unsupported method", "UNSUPPORTED_OPERATION", {
-            operation: `_perform(${stringify(req.method)})`
+            operation: `_perform(${stringify(req3.method)})`
         });
     }
-    async #waitForQuorum(running, req) {
-        if (running.size === 0) {
+    async #waitForQuorum(running3, req4) {
+        if (running3.size === 0) {
             throw new Error("no runners?!");
         }
         const interesting = [];
         let newRunners = 0;
-        for (const runner of running){
-            if (runner.perform) {
-                interesting.push(runner.perform);
+        for (const runner2 of running3){
+            if (runner2.perform) {
+                interesting.push(runner2.perform);
             }
-            if (runner.staller) {
-                interesting.push(runner.staller);
+            if (runner2.staller) {
+                interesting.push(runner2.staller);
                 continue;
             }
-            if (runner.didBump) {
+            if (runner2.didBump) {
                 continue;
             }
-            runner.didBump = true;
+            runner2.didBump = true;
             newRunners++;
         }
-        const value = await this.#checkQuorum(running, req);
-        if (value !== undefined) {
-            if (value instanceof Error) {
-                throw value;
+        const value3 = await this.#checkQuorum(running3, req4);
+        if (value3 !== undefined) {
+            if (value3 instanceof Error) {
+                throw value3;
             }
-            return value;
+            return value3;
         }
-        for(let i = 0; i < newRunners; i++){
-            this.#addRunner(running, req);
+        for(let i7 = 0; i7 < newRunners; i7++){
+            this.#addRunner(running3, req4);
         }
         assert1(interesting.length > 0, "quorum not met", "SERVER_ERROR", {
             request: "%sub-requests",
             info: {
-                request: req,
-                results: Array.from(running).map((r)=>stringify(r.result))
+                request: req4,
+                results: Array.from(running3).map((r)=>stringify(r.result))
             }
         });
         await Promise.race(interesting);
-        return await this.#waitForQuorum(running, req);
+        return await this.#waitForQuorum(running3, req4);
     }
     async _perform(req) {
         if (req.method === "broadcastTransaction") {
             const results = this.#configs.map((c)=>null);
-            const broadcasts = this.#configs.map(async ({ provider, weight }, index)=>{
+            const broadcasts = this.#configs.map(async ({ provider , weight  }, index)=>{
                 try {
                     const result = await provider._perform(req);
                     results[index] = Object.assign(normalizeResult({
@@ -17954,7 +17954,7 @@ class FallbackProvider extends AbstractProvider {
             });
             while(true){
                 const done = results.filter((r)=>r != null);
-                for (const { value } of done){
+                for (const { value  } of done){
                     if (!(value instanceof Error)) {
                         return value;
                     }
@@ -17969,18 +17969,18 @@ class FallbackProvider extends AbstractProvider {
                 }
                 await Promise.race(waiting);
             }
-            const result = getAnyResult(this.quorum, results);
-            assert1(result !== undefined, "problem multi-broadcasting", "SERVER_ERROR", {
+            const result1 = getAnyResult(this.quorum, results);
+            assert1(result1 !== undefined, "problem multi-broadcasting", "SERVER_ERROR", {
                 request: "%sub-requests",
                 info: {
                     request: req,
                     results: results.map(stringify)
                 }
             });
-            if (result instanceof Error) {
-                throw result;
+            if (result1 instanceof Error) {
+                throw result1;
             }
-            return result;
+            return result1;
         }
         await this.#initialSync();
         const running = new Set;
@@ -17995,16 +17995,16 @@ class FallbackProvider extends AbstractProvider {
                 break;
             }
         }
-        const result = await this.#waitForQuorum(running, req);
-        for (const runner of running){
-            if (runner.perform && runner.result == null) {
-                runner.config.lateResponses++;
+        const result2 = await this.#waitForQuorum(running, req);
+        for (const runner1 of running){
+            if (runner1.perform && runner1.result == null) {
+                runner1.config.lateResponses++;
             }
         }
-        return result;
+        return result2;
     }
     async destroy() {
-        for (const { provider } of this.#configs){
+        for (const { provider  } of this.#configs){
             provider.destroy();
         }
         super.destroy();
@@ -18055,27 +18055,27 @@ function getDefaultProvider(network, options) {
     if (allowService("alchemy")) {
         try {
             providers.push(new AlchemyProvider(network, options.alchemy));
-        } catch (error) {}
+        } catch (error1) {}
     }
     if (allowService("ankr") && options.ankr != null) {
         try {
             providers.push(new AnkrProvider(network, options.ankr));
-        } catch (error) {}
+        } catch (error2) {}
     }
     if (allowService("chainstack")) {
         try {
             providers.push(new ChainstackProvider(network, options.chainstack));
-        } catch (error) {}
+        } catch (error3) {}
     }
     if (allowService("cloudflare")) {
         try {
             providers.push(new CloudflareProvider(network));
-        } catch (error) {}
+        } catch (error4) {}
     }
     if (allowService("etherscan")) {
         try {
             providers.push(new EtherscanProvider(network, options.etherscan));
-        } catch (error) {}
+        } catch (error5) {}
     }
     if (allowService("infura")) {
         try {
@@ -18086,13 +18086,13 @@ function getDefaultProvider(network, options) {
                 projectId = projectId.projectId;
             }
             providers.push(new InfuraProvider(network, projectId, projectSecret));
-        } catch (error) {}
+        } catch (error6) {}
     }
     if (allowService("quicknode")) {
         try {
             let token = options.quicknode;
             providers.push(new QuickNodeProvider(network, token));
-        } catch (error) {}
+        } catch (error7) {}
     }
     assert1(providers.length, "unsupported default network", "UNSUPPORTED_OPERATION", {
         operation: "getDefaultProvider"
@@ -18363,7 +18363,7 @@ class BaseWallet extends AbstractSigner {
     }
     async signTransaction(tx) {
         tx = copyRequest(tx);
-        const { to, from } = await resolveProperties({
+        const { to , from  } = await resolveProperties({
             to: tx.to ? resolveAddress(tx.to, this.provider) : undefined,
             from: tx.from ? resolveAddress(tx.from, this.provider) : undefined
         });
@@ -18494,12 +18494,12 @@ class WordlistOwl extends Wordlist {
         return this.#loadWords().indexOf(word);
     }
 }
-const words = "0erleonalorenseinceregesticitStanvetearctssi#ch2Athck&tneLl0And#Il.yLeOutO=S|S%b/ra@SurdU'0Ce[Cid|CountCu'Hie=IdOu,-Qui*Ro[TT]T%T*[Tu$0AptDD-tD*[Ju,M.UltV<)Vi)0Rob-0FairF%dRaid0A(EEntRee0Ead0MRRp%tS!_rmBumCoholErtI&LLeyLowMo,O}PhaReadySoT Ways0A>urAz(gOngOuntU'd0Aly,Ch%Ci|G G!GryIm$K!Noun)Nu$O` Sw T&naTiqueXietyY1ArtOlogyPe?P!Pro=Ril1ChCt-EaEnaGueMMedM%MyOundR<+Re,Ri=RowTTefa@Ti,Tw%k0KPe@SaultSetSi,SumeThma0H!>OmTa{T&dT.udeTra@0Ct]D.Gu,NtTh%ToTumn0Era+OcadoOid0AkeA*AyEsomeFulKw?d0Is:ByChel%C#D+GL<)Lc#y~MbooN<aNn RRelyRga(R*lSeS-SketTt!3A^AnAutyCau'ComeEfF%eG(Ha=H(dLie=LowLtN^Nef./TrayTt Twe&Y#d3Cyc!DKeNdOlogyRdR`Tt _{AdeAmeAnketA,EakE[IndOodO[omOu'UeUrUsh_rdAtDyIlMbNeNusOkO,Rd R(gRrowSsTtomUn)XY_{etA(AndA[A=EadEezeI{Id+IefIghtIngIskOccoliOk&OnzeOomO` OwnUsh2Bb!DdyD+tFf$oIldLbLkL!tNd!Nk Rd&Rg R,SS(e[SyTt Y Zz:Bba+B(B!CtusGeKe~LmM aMpNN$N)lNdyNn#NoeNvasNy#Pab!P.$Pta(RRb#RdRgoRpetRryRtSeShS(o/!Su$TT$ogT^Teg%yTt!UghtU'Ut]Ve3Il(gL yM|NsusNturyRe$Rta(_irAlkAmp]An+AosApt Ar+A'AtEapE{Ee'EfErryE,I{&IefIldIm}yOi)Oo'R#-U{!UnkUrn0G?Nnam#Rc!Tiz&TyVil_imApArifyAwAyE<ErkEv I{I|IffImbIn-IpO{OgO'O`OudOwnUbUmpU, Ut^_^A,C#utDeFfeeIlInL!@L%LumnMb(eMeMf%tM-Mm#Mp<yNc tNdu@NfirmNg*[N}@Nsid NtrolNv()OkOlPp PyR$ReRnR*@/Tt#U^UntryUp!Ur'Us(V Yo>_{Ad!AftAmA}AshAt AwlAzyEamEd.EekEwI{etImeIspIt-OpO[Ou^OwdUci$UelUi'Umb!Un^UshYY,$2BeLtu*PPbo?dRiousRr|Rta(R=Sh]/omTe3C!:DMa+MpN)Ng R(gShUght WnY3AlBa>BrisCadeCemb CideCl(eC%a>C*a'ErF&'F(eFyG*eLayLiv M<dMi'Ni$Nti,NyP?tP&dPos.P`PutyRi=ScribeS tSignSkSpair/royTailTe@VelopVi)Vo>3AgramAlAm#dAryCeE'lEtFf G.$Gn.yLemmaNn NosaurRe@RtSag*eScov Sea'ShSmi[S%d Splay/<)V tVideV%)Zzy5Ct%Cum|G~Lph(Ma(Na>NkeyN%OrSeUb!Ve_ftAg#AmaA,-AwEamE[IftIllInkIpI=OpUmY2CkMbNeR(g/T^Ty1Arf1Nam-:G G!RlyRnR`Sily/Sy1HoOlogyOnomy0GeItUca>1F%t0G1GhtTh 2BowD E@r-Eg<tEm|Eph<tEvat%I>Se0B?kBodyBra)Er+Ot]PloyPow Pty0Ab!A@DD![D%'EmyErgyF%)Ga+G(eH<)JoyLi,OughR-hRollSu*T Ti*TryVelope1Isode0U$Uip0AA'OdeOs]R%Upt0CapeSayS&)Ta>0Ern$H-s1Id&)IlOkeOl=1A@Amp!Ce[Ch<+C.eCludeCu'Ecu>Erci'Hau,Hib.I!I,ItOt-P<dPe@Pi*Pla(Po'P*[T&dTra0EEbrow:Br-CeCultyDeIntI`~L'MeMilyMousNNcyNtasyRmSh]TT$Th TigueUltV%.e3Atu*Bru?yD $EEdElMa!N)/iv$T^V W3B Ct]EldGu*LeLmLt N$NdNeNg NishReRmR,Sc$ShTT}[X_gAmeAshAtAv%EeIghtIpOatO{O%Ow UidUshY_mCusGIlLd~owOdOtR)Re,R+tRkRtu}RumRw?dSsil/ UndX_gi!AmeEqu|EshI&dIn+OgOntO,OwnOz&U.2ElNNnyRna)RyTu*:D+tInLaxy~ yMePRa+Rba+Rd&Rl-Rm|SSpTeTh U+Ze3N $NiusN*Nt!Nu(e/u*2O,0AntFtGg!Ng RaffeRlVe_dAn)A*A[IdeImp'ObeOomOryO=OwUe_tDde[LdOdO'RillaSpelSsipV nWn_bA)A(AntApeA[Av.yEatE&IdIefItOc yOupOwUnt_rdE[IdeIltIt?N3M:B.IrLfMm M, NdPpyRb%RdRshR=,TVeWkZ?d3AdAl`ArtAvyD+hogIght~oLmetLpNRo3Dd&Gh~NtPRe/%y5BbyCkeyLdLeLiday~owMeNeyOdPeRnRr%R'Sp.$/TelUrV 5BGeM<Mb!M%Nd*dNgryNtRd!RryRtSb<d3Brid:1EOn0EaEntifyLe2N%e4LLeg$L}[0A+Ita>M&'Mu}Pa@Po'Pro=Pul'0ChCludeComeC*a'DexD-a>Do%Du,ryF<tFl-tF%mHa!H .Iti$Je@JuryMa>N Noc|PutQuiryS<eSe@SideSpi*/$lTa@T e,ToVe,V.eVol=3On0L<dOla>Sue0Em1Ory:CketGu?RZz3AlousAns~yWel9BInKeUr}yY5D+I)MpNg!Ni%Nk/:Ng?oo3EnEpT^upY3CkDD}yNdNgdomSsTT^&TeTt&Wi4EeIfeO{Ow:BBelB%Dd DyKeMpNgua+PtopR+T T(UghUndryVaWWnWsu.Y Zy3Ad AfArnA=Ctu*FtGG$G&dIsu*M#NdNg`NsOp?dSs#Tt Vel3ArB tyBr?yC&'FeFtGhtKeMbM.NkOnQuid/Tt!VeZ?d5AdAnB, C$CkG-NelyNgOpTt yUdUn+VeY$5CkyGga+Mb N?N^Xury3R-s:Ch(eDG-G}tIdIlInJ%KeMm$NNa+Nda>NgoNs]Nu$P!Rb!R^Rg(R(eRketRria+SkSs/ T^T i$ThTrixTt XimumZe3AdowAnAsu*AtCh<-D$DiaLodyLtMb M%yNt]NuRcyR+R.RryShSsa+T$Thod3Dd!DnightLk~]M-NdNimumN%Nu>Rac!Rr%S ySs/akeXXedXtu*5Bi!DelDifyMM|N.%NkeyN, N`OnR$ReRn(gSqu.oTh T]T%Unta(U'VeVie5ChFf(LeLtiplySc!SeumShroomS-/Tu$3Self/ yTh:I=MePk(Rrow/yT]Tu*3ArCkEdGati=G!@I` PhewR=/TTw%kUtr$V WsXt3CeGht5B!I'M(eeOd!Rm$R`SeTab!TeTh(gTi)VelW5C!?Mb R'T:K0EyJe@Li+Scu*S =Ta(Vious0CurE<Tob 0Or1FF Fi)T&2L1Ay0DI=Ymp-0It0CeEI#L(eLy1EnEraIn]Po'T]1An+B.Ch?dD D(?yG<I|Ig($Ph<0Tr-h0H 0Tdo%T TputTside0AlEnEr0NN 0Yg&0/ 0O}:CtDd!GeIrLa)LmNdaNelN-N` P RadeR|RkRrotRtySsT^ThTi|TrolTt nU'VeYm|3A)AnutArAs<tL-<NN$tyNcilOp!Pp Rfe@Rm.Rs#T2O}OtoRa'Ys-$0AnoCn-Ctu*E)GGe#~LotNkO} Pe/olT^Zza_)A}tA,-A>AyEa'Ed+U{UgUn+2EmEtIntL?LeLi)NdNyOlPul?Rt]S.]Ssib!/TatoTt yV tyWd W _@i)Ai'Ed-tEf Epa*Es|EttyEv|I)IdeIm?yIntI%.yIs#Iva>IzeOb!mO)[Odu)Of.OgramOje@Omo>OofOp tyOsp O>@OudOvide2Bl-Dd(g~LpL'Mpk(N^PilPpyR^a'R.yRpo'R'ShTZz!3Ramid:99Al.yAntumArt E,]I{ItIzO>:Bb.Cco#CeCkD?DioIlInI'~yMpN^NdomN+PidReTeTh V&WZ%3AdyAlAs#BelBuildC$lCei=CipeC%dCyc!Du)F!@F%mFu'G]G*tGul?Je@LaxLea'LiefLyMa(Memb M(dMo=Nd NewNtOp&PairPeatPla)P%tQui*ScueSemb!Si,Sour)Sp#'SultTi*T*atTurnUn]Ve$ViewW?d2Y`m0BBb#CeChDeD+F!GhtGidNgOtPp!SkTu$V$V 5AdA,BotBu,CketM<)OfOkieOmSeTa>UghUndU>Y$5Bb DeGLeNNwayR$:DDd!D}[FeIlLadLm#L#LtLu>MeMp!NdTisfyToshiU)Usa+VeY1A!AnA*Att E}HemeHoolI&)I[%sOrp]OutRapRe&RiptRub1AAr^As#AtC#dC*tCt]Cur.yEdEkGm|Le@~M(?Ni%N'Nt&)RiesRvi)Ss]Tt!TupV&_dowAftAllowA*EdEllEriffIeldIftI}IpIv O{OeOotOpOrtOuld O=RimpRugUff!Y0Bl(gCkDeE+GhtGnL|Lk~yLv Mil?Mp!N)NgR&/ Tua>XZe1A>Et^IIllInIrtUll0AbAmEepEnd I)IdeIghtImOg<OtOwUsh0AllArtI!OkeOo`0A{AkeApIffOw0ApCc Ci$CkDaFtL?Ldi LidLut]L=Me#eNgOnRryRtUlUndUpUr)U`0A)A*Ati$AwnEakEci$EedEllEndH eI)Id IkeInIr.L.OilOns%O#OrtOtRayReadR(gY0Ua*UeezeUir*l_b!AdiumAffA+AirsAmpAndArtA>AyEakEelEmEpE*oI{IllIngO{Oma^O}OolOryO=Ra>gyReetRikeR#gRugg!Ud|UffUmb!Y!0Bje@Bm.BwayC)[ChDd&Ff G?G+,ItMm NNnyN'tP PplyP*meReRfa)R+Rpri'RroundR=ySpe@/a(1AllowAmpApArmE?EetIftImIngIt^Ord1MbolMptomRup/em:B!Ck!GIlL|LkNkPeR+tSk/eTtooXi3A^Am~NN<tNnisNtRm/Xt_nkAtEmeEnE%yE*EyIngIsOughtReeRi=RowUmbUnd 0CketDeG LtMb MeNyPRedSsueT!5A,BaccoDayDdl EGe` I!tK&MatoM%rowNeNgueNightOlO`PP-Pp!R^RnadoRtoi'SsT$Uri,W?dW WnY_{AdeAff-Ag-A(Ansf ApAshA=lAyEatEeEndI$IbeI{Igg ImIpOphyOub!U{UeUlyUmpetU,U`Y2BeIt]Mb!NaN}lRkeyRnRt!1El=EntyI)InI,O1PeP-$:5Ly5B*lla0Ab!Awa*C!Cov D DoFairFoldHappyIf%mIqueItIv 'KnownLo{TilUsu$Veil1Da>GradeHoldOnP Set1B<Ge0A+EEdEfulE![U$0Il.y:C<tCuumGueLidL!yL=NNishP%Rious/Ult3H-!L=tNd%Ntu*NueRbRifyRs]RyS'lT <3Ab!Br<tCiousCt%yDeoEw~a+Nta+Ol(Rtu$RusSaS.Su$T$Vid5C$I)IdLc<oLumeTeYa+:GeG#ItLk~LnutNtRfa*RmRri%ShSp/eT VeY3Al`Ap#ArA'lA` BDd(gEk&dIrdLcome/T_!AtEatEelEnE*IpIsp 0DeD`FeLd~NNdowNeNgNkNn Nt ReSdomSeShT}[5LfM<Nd OdOlRdRkRldRryR`_pE{E,!I,I>Ong::Rd3Ar~ow9UUngU`:3BraRo9NeO";
-const checksum = "0x3c8acc1e7b08d8e76f9fda015ef48dc8c710a73cb7e0f77b2c18a9b5a7adde60";
+const words1 = "0erleonalorenseinceregesticitStanvetearctssi#ch2Athck&tneLl0And#Il.yLeOutO=S|S%b/ra@SurdU'0Ce[Cid|CountCu'Hie=IdOu,-Qui*Ro[TT]T%T*[Tu$0AptDD-tD*[Ju,M.UltV<)Vi)0Rob-0FairF%dRaid0A(EEntRee0Ead0MRRp%tS!_rmBumCoholErtI&LLeyLowMo,O}PhaReadySoT Ways0A>urAz(gOngOuntU'd0Aly,Ch%Ci|G G!GryIm$K!Noun)Nu$O` Sw T&naTiqueXietyY1ArtOlogyPe?P!Pro=Ril1ChCt-EaEnaGueMMedM%MyOundR<+Re,Ri=RowTTefa@Ti,Tw%k0KPe@SaultSetSi,SumeThma0H!>OmTa{T&dT.udeTra@0Ct]D.Gu,NtTh%ToTumn0Era+OcadoOid0AkeA*AyEsomeFulKw?d0Is:ByChel%C#D+GL<)Lc#y~MbooN<aNn RRelyRga(R*lSeS-SketTt!3A^AnAutyCau'ComeEfF%eG(Ha=H(dLie=LowLtN^Nef./TrayTt Twe&Y#d3Cyc!DKeNdOlogyRdR`Tt _{AdeAmeAnketA,EakE[IndOodO[omOu'UeUrUsh_rdAtDyIlMbNeNusOkO,Rd R(gRrowSsTtomUn)XY_{etA(AndA[A=EadEezeI{Id+IefIghtIngIskOccoliOk&OnzeOomO` OwnUsh2Bb!DdyD+tFf$oIldLbLkL!tNd!Nk Rd&Rg R,SS(e[SyTt Y Zz:Bba+B(B!CtusGeKe~LmM aMpNN$N)lNdyNn#NoeNvasNy#Pab!P.$Pta(RRb#RdRgoRpetRryRtSeShS(o/!Su$TT$ogT^Teg%yTt!UghtU'Ut]Ve3Il(gL yM|NsusNturyRe$Rta(_irAlkAmp]An+AosApt Ar+A'AtEapE{Ee'EfErryE,I{&IefIldIm}yOi)Oo'R#-U{!UnkUrn0G?Nnam#Rc!Tiz&TyVil_imApArifyAwAyE<ErkEv I{I|IffImbIn-IpO{OgO'O`OudOwnUbUmpU, Ut^_^A,C#utDeFfeeIlInL!@L%LumnMb(eMeMf%tM-Mm#Mp<yNc tNdu@NfirmNg*[N}@Nsid NtrolNv()OkOlPp PyR$ReRnR*@/Tt#U^UntryUp!Ur'Us(V Yo>_{Ad!AftAmA}AshAt AwlAzyEamEd.EekEwI{etImeIspIt-OpO[Ou^OwdUci$UelUi'Umb!Un^UshYY,$2BeLtu*PPbo?dRiousRr|Rta(R=Sh]/omTe3C!:DMa+MpN)Ng R(gShUght WnY3AlBa>BrisCadeCemb CideCl(eC%a>C*a'ErF&'F(eFyG*eLayLiv M<dMi'Ni$Nti,NyP?tP&dPos.P`PutyRi=ScribeS tSignSkSpair/royTailTe@VelopVi)Vo>3AgramAlAm#dAryCeE'lEtFf G.$Gn.yLemmaNn NosaurRe@RtSag*eScov Sea'ShSmi[S%d Splay/<)V tVideV%)Zzy5Ct%Cum|G~Lph(Ma(Na>NkeyN%OrSeUb!Ve_ftAg#AmaA,-AwEamE[IftIllInkIpI=OpUmY2CkMbNeR(g/T^Ty1Arf1Nam-:G G!RlyRnR`Sily/Sy1HoOlogyOnomy0GeItUca>1F%t0G1GhtTh 2BowD E@r-Eg<tEm|Eph<tEvat%I>Se0B?kBodyBra)Er+Ot]PloyPow Pty0Ab!A@DD![D%'EmyErgyF%)Ga+G(eH<)JoyLi,OughR-hRollSu*T Ti*TryVelope1Isode0U$Uip0AA'OdeOs]R%Upt0CapeSayS&)Ta>0Ern$H-s1Id&)IlOkeOl=1A@Amp!Ce[Ch<+C.eCludeCu'Ecu>Erci'Hau,Hib.I!I,ItOt-P<dPe@Pi*Pla(Po'P*[T&dTra0EEbrow:Br-CeCultyDeIntI`~L'MeMilyMousNNcyNtasyRmSh]TT$Th TigueUltV%.e3Atu*Bru?yD $EEdElMa!N)/iv$T^V W3B Ct]EldGu*LeLmLt N$NdNeNg NishReRmR,Sc$ShTT}[X_gAmeAshAtAv%EeIghtIpOatO{O%Ow UidUshY_mCusGIlLd~owOdOtR)Re,R+tRkRtu}RumRw?dSsil/ UndX_gi!AmeEqu|EshI&dIn+OgOntO,OwnOz&U.2ElNNnyRna)RyTu*:D+tInLaxy~ yMePRa+Rba+Rd&Rl-Rm|SSpTeTh U+Ze3N $NiusN*Nt!Nu(e/u*2O,0AntFtGg!Ng RaffeRlVe_dAn)A*A[IdeImp'ObeOomOryO=OwUe_tDde[LdOdO'RillaSpelSsipV nWn_bA)A(AntApeA[Av.yEatE&IdIefItOc yOupOwUnt_rdE[IdeIltIt?N3M:B.IrLfMm M, NdPpyRb%RdRshR=,TVeWkZ?d3AdAl`ArtAvyD+hogIght~oLmetLpNRo3Dd&Gh~NtPRe/%y5BbyCkeyLdLeLiday~owMeNeyOdPeRnRr%R'Sp.$/TelUrV 5BGeM<Mb!M%Nd*dNgryNtRd!RryRtSb<d3Brid:1EOn0EaEntifyLe2N%e4LLeg$L}[0A+Ita>M&'Mu}Pa@Po'Pro=Pul'0ChCludeComeC*a'DexD-a>Do%Du,ryF<tFl-tF%mHa!H .Iti$Je@JuryMa>N Noc|PutQuiryS<eSe@SideSpi*/$lTa@T e,ToVe,V.eVol=3On0L<dOla>Sue0Em1Ory:CketGu?RZz3AlousAns~yWel9BInKeUr}yY5D+I)MpNg!Ni%Nk/:Ng?oo3EnEpT^upY3CkDD}yNdNgdomSsTT^&TeTt&Wi4EeIfeO{Ow:BBelB%Dd DyKeMpNgua+PtopR+T T(UghUndryVaWWnWsu.Y Zy3Ad AfArnA=Ctu*FtGG$G&dIsu*M#NdNg`NsOp?dSs#Tt Vel3ArB tyBr?yC&'FeFtGhtKeMbM.NkOnQuid/Tt!VeZ?d5AdAnB, C$CkG-NelyNgOpTt yUdUn+VeY$5CkyGga+Mb N?N^Xury3R-s:Ch(eDG-G}tIdIlInJ%KeMm$NNa+Nda>NgoNs]Nu$P!Rb!R^Rg(R(eRketRria+SkSs/ T^T i$ThTrixTt XimumZe3AdowAnAsu*AtCh<-D$DiaLodyLtMb M%yNt]NuRcyR+R.RryShSsa+T$Thod3Dd!DnightLk~]M-NdNimumN%Nu>Rac!Rr%S ySs/akeXXedXtu*5Bi!DelDifyMM|N.%NkeyN, N`OnR$ReRn(gSqu.oTh T]T%Unta(U'VeVie5ChFf(LeLtiplySc!SeumShroomS-/Tu$3Self/ yTh:I=MePk(Rrow/yT]Tu*3ArCkEdGati=G!@I` PhewR=/TTw%kUtr$V WsXt3CeGht5B!I'M(eeOd!Rm$R`SeTab!TeTh(gTi)VelW5C!?Mb R'T:K0EyJe@Li+Scu*S =Ta(Vious0CurE<Tob 0Or1FF Fi)T&2L1Ay0DI=Ymp-0It0CeEI#L(eLy1EnEraIn]Po'T]1An+B.Ch?dD D(?yG<I|Ig($Ph<0Tr-h0H 0Tdo%T TputTside0AlEnEr0NN 0Yg&0/ 0O}:CtDd!GeIrLa)LmNdaNelN-N` P RadeR|RkRrotRtySsT^ThTi|TrolTt nU'VeYm|3A)AnutArAs<tL-<NN$tyNcilOp!Pp Rfe@Rm.Rs#T2O}OtoRa'Ys-$0AnoCn-Ctu*E)GGe#~LotNkO} Pe/olT^Zza_)A}tA,-A>AyEa'Ed+U{UgUn+2EmEtIntL?LeLi)NdNyOlPul?Rt]S.]Ssib!/TatoTt yV tyWd W _@i)Ai'Ed-tEf Epa*Es|EttyEv|I)IdeIm?yIntI%.yIs#Iva>IzeOb!mO)[Odu)Of.OgramOje@Omo>OofOp tyOsp O>@OudOvide2Bl-Dd(g~LpL'Mpk(N^PilPpyR^a'R.yRpo'R'ShTZz!3Ramid:99Al.yAntumArt E,]I{ItIzO>:Bb.Cco#CeCkD?DioIlInI'~yMpN^NdomN+PidReTeTh V&WZ%3AdyAlAs#BelBuildC$lCei=CipeC%dCyc!Du)F!@F%mFu'G]G*tGul?Je@LaxLea'LiefLyMa(Memb M(dMo=Nd NewNtOp&PairPeatPla)P%tQui*ScueSemb!Si,Sour)Sp#'SultTi*T*atTurnUn]Ve$ViewW?d2Y`m0BBb#CeChDeD+F!GhtGidNgOtPp!SkTu$V$V 5AdA,BotBu,CketM<)OfOkieOmSeTa>UghUndU>Y$5Bb DeGLeNNwayR$:DDd!D}[FeIlLadLm#L#LtLu>MeMp!NdTisfyToshiU)Usa+VeY1A!AnA*Att E}HemeHoolI&)I[%sOrp]OutRapRe&RiptRub1AAr^As#AtC#dC*tCt]Cur.yEdEkGm|Le@~M(?Ni%N'Nt&)RiesRvi)Ss]Tt!TupV&_dowAftAllowA*EdEllEriffIeldIftI}IpIv O{OeOotOpOrtOuld O=RimpRugUff!Y0Bl(gCkDeE+GhtGnL|Lk~yLv Mil?Mp!N)NgR&/ Tua>XZe1A>Et^IIllInIrtUll0AbAmEepEnd I)IdeIghtImOg<OtOwUsh0AllArtI!OkeOo`0A{AkeApIffOw0ApCc Ci$CkDaFtL?Ldi LidLut]L=Me#eNgOnRryRtUlUndUpUr)U`0A)A*Ati$AwnEakEci$EedEllEndH eI)Id IkeInIr.L.OilOns%O#OrtOtRayReadR(gY0Ua*UeezeUir*l_b!AdiumAffA+AirsAmpAndArtA>AyEakEelEmEpE*oI{IllIngO{Oma^O}OolOryO=Ra>gyReetRikeR#gRugg!Ud|UffUmb!Y!0Bje@Bm.BwayC)[ChDd&Ff G?G+,ItMm NNnyN'tP PplyP*meReRfa)R+Rpri'RroundR=ySpe@/a(1AllowAmpApArmE?EetIftImIngIt^Ord1MbolMptomRup/em:B!Ck!GIlL|LkNkPeR+tSk/eTtooXi3A^Am~NN<tNnisNtRm/Xt_nkAtEmeEnE%yE*EyIngIsOughtReeRi=RowUmbUnd 0CketDeG LtMb MeNyPRedSsueT!5A,BaccoDayDdl EGe` I!tK&MatoM%rowNeNgueNightOlO`PP-Pp!R^RnadoRtoi'SsT$Uri,W?dW WnY_{AdeAff-Ag-A(Ansf ApAshA=lAyEatEeEndI$IbeI{Igg ImIpOphyOub!U{UeUlyUmpetU,U`Y2BeIt]Mb!NaN}lRkeyRnRt!1El=EntyI)InI,O1PeP-$:5Ly5B*lla0Ab!Awa*C!Cov D DoFairFoldHappyIf%mIqueItIv 'KnownLo{TilUsu$Veil1Da>GradeHoldOnP Set1B<Ge0A+EEdEfulE![U$0Il.y:C<tCuumGueLidL!yL=NNishP%Rious/Ult3H-!L=tNd%Ntu*NueRbRifyRs]RyS'lT <3Ab!Br<tCiousCt%yDeoEw~a+Nta+Ol(Rtu$RusSaS.Su$T$Vid5C$I)IdLc<oLumeTeYa+:GeG#ItLk~LnutNtRfa*RmRri%ShSp/eT VeY3Al`Ap#ArA'lA` BDd(gEk&dIrdLcome/T_!AtEatEelEnE*IpIsp 0DeD`FeLd~NNdowNeNgNkNn Nt ReSdomSeShT}[5LfM<Nd OdOlRdRkRldRryR`_pE{E,!I,I>Ong::Rd3Ar~ow9UUngU`:3BraRo9NeO";
+const checksum1 = "0x3c8acc1e7b08d8e76f9fda015ef48dc8c710a73cb7e0f77b2c18a9b5a7adde60";
 let wordlist = null;
 class LangEn extends WordlistOwl {
     constructor(){
-        super("en", words, checksum);
+        super("en", words1, checksum1);
     }
     static wordlist() {
         if (wordlist == null) {
@@ -22321,10 +22321,10 @@ class AES {
         const KC = this.key.length / 4;
         const tk = convertToInt32(this.key);
         let index;
-        for(let i = 0; i < KC; i++){
-            index = i >> 2;
-            __classPrivateFieldGet$2(this, _AES_Ke, "f")[index][i % 4] = tk[i];
-            __classPrivateFieldGet$2(this, _AES_Kd, "f")[rounds - index][i % 4] = tk[i];
+        for(let i1 = 0; i1 < KC; i1++){
+            index = i1 >> 2;
+            __classPrivateFieldGet$2(this, _AES_Ke, "f")[index][i1 % 4] = tk[i1];
+            __classPrivateFieldGet$2(this, _AES_Kd, "f")[rounds - index][i1 % 4] = tk[i1];
         }
         let rconpointer = 0;
         let t = KC, tt;
@@ -22333,32 +22333,32 @@ class AES {
             tk[0] ^= S[tt >> 16 & 255] << 24 ^ S[tt >> 8 & 255] << 16 ^ S[tt & 255] << 8 ^ S[tt >> 24 & 255] ^ rcon[rconpointer] << 24;
             rconpointer += 1;
             if (KC != 8) {
-                for(let i = 1; i < KC; i++){
-                    tk[i] ^= tk[i - 1];
+                for(let i2 = 1; i2 < KC; i2++){
+                    tk[i2] ^= tk[i2 - 1];
                 }
             } else {
-                for(let i = 1; i < KC / 2; i++){
-                    tk[i] ^= tk[i - 1];
+                for(let i3 = 1; i3 < KC / 2; i3++){
+                    tk[i3] ^= tk[i3 - 1];
                 }
                 tt = tk[KC / 2 - 1];
                 tk[KC / 2] ^= S[tt & 255] ^ S[tt >> 8 & 255] << 8 ^ S[tt >> 16 & 255] << 16 ^ S[tt >> 24 & 255] << 24;
-                for(let i = KC / 2 + 1; i < KC; i++){
-                    tk[i] ^= tk[i - 1];
+                for(let i4 = KC / 2 + 1; i4 < KC; i4++){
+                    tk[i4] ^= tk[i4 - 1];
                 }
             }
-            let i = 0, r, c;
-            while(i < KC && t < roundKeyCount){
+            let i5 = 0, r, c;
+            while(i5 < KC && t < roundKeyCount){
                 r = t >> 2;
                 c = t % 4;
-                __classPrivateFieldGet$2(this, _AES_Ke, "f")[r][c] = tk[i];
-                __classPrivateFieldGet$2(this, _AES_Kd, "f")[rounds - r][c] = tk[i++];
+                __classPrivateFieldGet$2(this, _AES_Ke, "f")[r][c] = tk[i5];
+                __classPrivateFieldGet$2(this, _AES_Kd, "f")[rounds - r][c] = tk[i5++];
                 t++;
             }
         }
-        for(let r = 1; r < rounds; r++){
-            for(let c = 0; c < 4; c++){
-                tt = __classPrivateFieldGet$2(this, _AES_Kd, "f")[r][c];
-                __classPrivateFieldGet$2(this, _AES_Kd, "f")[r][c] = U1[tt >> 24 & 255] ^ U2[tt >> 16 & 255] ^ U3[tt >> 8 & 255] ^ U4[tt & 255];
+        for(let r1 = 1; r1 < rounds; r1++){
+            for(let c1 = 0; c1 < 4; c1++){
+                tt = __classPrivateFieldGet$2(this, _AES_Kd, "f")[r1][c1];
+                __classPrivateFieldGet$2(this, _AES_Kd, "f")[r1][c1] = U1[tt >> 24 & 255] ^ U2[tt >> 16 & 255] ^ U3[tt >> 8 & 255] ^ U4[tt & 255];
             }
         }
     }
@@ -22378,19 +22378,19 @@ class AES {
             t[i] ^= __classPrivateFieldGet$2(this, _AES_Ke, "f")[0][i];
         }
         for(let r = 1; r < rounds; r++){
-            for(let i = 0; i < 4; i++){
-                a[i] = T1[t[i] >> 24 & 255] ^ T2[t[(i + 1) % 4] >> 16 & 255] ^ T3[t[(i + 2) % 4] >> 8 & 255] ^ T4[t[(i + 3) % 4] & 255] ^ __classPrivateFieldGet$2(this, _AES_Ke, "f")[r][i];
+            for(let i1 = 0; i1 < 4; i1++){
+                a[i1] = T1[t[i1] >> 24 & 255] ^ T2[t[(i1 + 1) % 4] >> 16 & 255] ^ T3[t[(i1 + 2) % 4] >> 8 & 255] ^ T4[t[(i1 + 3) % 4] & 255] ^ __classPrivateFieldGet$2(this, _AES_Ke, "f")[r][i1];
             }
             t = a.slice();
         }
         const result = new Uint8Array(16);
         let tt = 0;
-        for(let i = 0; i < 4; i++){
-            tt = __classPrivateFieldGet$2(this, _AES_Ke, "f")[rounds][i];
-            result[4 * i] = (S[t[i] >> 24 & 255] ^ tt >> 24) & 255;
-            result[4 * i + 1] = (S[t[(i + 1) % 4] >> 16 & 255] ^ tt >> 16) & 255;
-            result[4 * i + 2] = (S[t[(i + 2) % 4] >> 8 & 255] ^ tt >> 8) & 255;
-            result[4 * i + 3] = (S[t[(i + 3) % 4] & 255] ^ tt) & 255;
+        for(let i2 = 0; i2 < 4; i2++){
+            tt = __classPrivateFieldGet$2(this, _AES_Ke, "f")[rounds][i2];
+            result[4 * i2] = (S[t[i2] >> 24 & 255] ^ tt >> 24) & 255;
+            result[4 * i2 + 1] = (S[t[(i2 + 1) % 4] >> 16 & 255] ^ tt >> 16) & 255;
+            result[4 * i2 + 2] = (S[t[(i2 + 2) % 4] >> 8 & 255] ^ tt >> 8) & 255;
+            result[4 * i2 + 3] = (S[t[(i2 + 3) % 4] & 255] ^ tt) & 255;
         }
         return result;
     }
@@ -22410,19 +22410,19 @@ class AES {
             t[i] ^= __classPrivateFieldGet$2(this, _AES_Kd, "f")[0][i];
         }
         for(let r = 1; r < rounds; r++){
-            for(let i = 0; i < 4; i++){
-                a[i] = T5[t[i] >> 24 & 255] ^ T6[t[(i + 3) % 4] >> 16 & 255] ^ T7[t[(i + 2) % 4] >> 8 & 255] ^ T8[t[(i + 1) % 4] & 255] ^ __classPrivateFieldGet$2(this, _AES_Kd, "f")[r][i];
+            for(let i1 = 0; i1 < 4; i1++){
+                a[i1] = T5[t[i1] >> 24 & 255] ^ T6[t[(i1 + 3) % 4] >> 16 & 255] ^ T7[t[(i1 + 2) % 4] >> 8 & 255] ^ T8[t[(i1 + 1) % 4] & 255] ^ __classPrivateFieldGet$2(this, _AES_Kd, "f")[r][i1];
             }
             t = a.slice();
         }
         const result = new Uint8Array(16);
         let tt = 0;
-        for(let i = 0; i < 4; i++){
-            tt = __classPrivateFieldGet$2(this, _AES_Kd, "f")[rounds][i];
-            result[4 * i] = (Si[t[i] >> 24 & 255] ^ tt >> 24) & 255;
-            result[4 * i + 1] = (Si[t[(i + 3) % 4] >> 16 & 255] ^ tt >> 16) & 255;
-            result[4 * i + 2] = (Si[t[(i + 2) % 4] >> 8 & 255] ^ tt >> 8) & 255;
-            result[4 * i + 3] = (Si[t[(i + 1) % 4] & 255] ^ tt) & 255;
+        for(let i2 = 0; i2 < 4; i2++){
+            tt = __classPrivateFieldGet$2(this, _AES_Kd, "f")[rounds][i2];
+            result[4 * i2] = (Si[t[i2] >> 24 & 255] ^ tt >> 24) & 255;
+            result[4 * i2 + 1] = (Si[t[(i2 + 3) % 4] >> 16 & 255] ^ tt >> 16) & 255;
+            result[4 * i2 + 2] = (Si[t[(i2 + 2) % 4] >> 8 & 255] ^ tt >> 8) & 255;
+            result[4 * i2 + 3] = (Si[t[(i2 + 1) % 4] & 255] ^ tt) & 255;
         }
         return result;
     }
@@ -22753,18 +22753,18 @@ function getDecryptKdfParams(data) {
                 dkLen: 64
             };
         } else if (kdf.toLowerCase() === "pbkdf2") {
-            const salt = spelunk(data, "crypto.kdfparams.salt:data!");
+            const salt1 = spelunk(data, "crypto.kdfparams.salt:data!");
             const prf = spelunk(data, "crypto.kdfparams.prf:string!");
             const algorithm = prf.split("-").pop();
             assertArgument(algorithm === "sha256" || algorithm === "sha512", "invalid kdf.pdf", "kdf.pdf", prf);
             const count = spelunk(data, "crypto.kdfparams.c:int!");
-            const dkLen = spelunk(data, "crypto.kdfparams.dklen:int!");
-            assertArgument(dkLen === 32, "invalid kdf.dklen", "kdf.dklen", dkLen);
+            const dkLen1 = spelunk(data, "crypto.kdfparams.dklen:int!");
+            assertArgument(dkLen1 === 32, "invalid kdf.dklen", "kdf.dklen", dkLen1);
             return {
                 name: "pbkdf2",
-                salt: salt,
+                salt: salt1,
                 count: count,
-                dkLen: dkLen,
+                dkLen: dkLen1,
                 algorithm: algorithm
             };
         }
@@ -22776,16 +22776,16 @@ function decryptKeystoreJsonSync(json, _password) {
     const password = getPassword(_password);
     const params = getDecryptKdfParams(data);
     if (params.name === "pbkdf2") {
-        const { salt, count, dkLen, algorithm } = params;
+        const { salt , count , dkLen , algorithm  } = params;
         const key = pbkdf2(password, salt, count, dkLen, algorithm);
         return getAccount(data, key);
     }
     assert1(params.name === "scrypt", "cannot be reached", "UNKNOWN_ERROR", {
         params: params
     });
-    const { salt, N, r, p, dkLen } = params;
-    const key = scryptSync(password, salt, N, r, p, dkLen);
-    return getAccount(data, key);
+    const { salt: salt1 , N , r , p , dkLen: dkLen1  } = params;
+    const key1 = scryptSync(password, salt1, N, r, p, dkLen1);
+    return getAccount(data, key1);
 }
 function stall$1(duration) {
     return new Promise((resolve)=>{
@@ -22803,7 +22803,7 @@ async function decryptKeystoreJson(json, _password, progress) {
             progress(0);
             await stall$1(0);
         }
-        const { salt, count, dkLen, algorithm } = params;
+        const { salt , count , dkLen , algorithm  } = params;
         const key = pbkdf2(password, salt, count, dkLen, algorithm);
         if (progress) {
             progress(1);
@@ -22814,9 +22814,9 @@ async function decryptKeystoreJson(json, _password, progress) {
     assert1(params.name === "scrypt", "cannot be reached", "UNKNOWN_ERROR", {
         params: params
     });
-    const { salt, N, r, p, dkLen } = params;
-    const key = await scrypt(password, salt, N, r, p, dkLen, progress);
-    return getAccount(data, key);
+    const { salt: salt1 , N , r , p , dkLen: dkLen1  } = params;
+    const key1 = await scrypt(password, salt1, N, r, p, dkLen1, progress);
+    return getAccount(data, key1);
 }
 function getEncryptKdfParams(options) {
     const salt = options.salt != null ? getBytes(options.salt, "options.salt") : randomBytes(32);
@@ -22994,9 +22994,9 @@ function derivePath(node, path) {
             assertArgument(index < 2147483648, "invalid path index", `path[${i}]`, component);
             result = result.deriveChild(HardenedBit + index);
         } else if (component.match(/^[0-9]+$/)) {
-            const index = parseInt(component);
-            assertArgument(index < 2147483648, "invalid path index", `path[${i}]`, component);
-            result = result.deriveChild(index);
+            const index1 = parseInt(component);
+            assertArgument(index1 < 2147483648, "invalid path index", `path[${i}]`, component);
+            result = result.deriveChild(index1);
         } else {
             assertArgument(false, "invalid path component", `path[${i}]`, component);
         }
@@ -23089,7 +23089,7 @@ class HDNodeWallet extends BaseWallet {
                 path += "'";
             }
         }
-        const { IR, IL } = ser_I(index, this.chainCode, this.publicKey, this.privateKey);
+        const { IR , IL  } = ser_I(index, this.chainCode, this.publicKey, this.privateKey);
         const ki = new SigningKey(toBeHex((toBigInt(IL) + BigInt(this.privateKey)) % N, 32));
         return new HDNodeWallet(_guard, ki, this.fingerprint, hexlify(IR), path, index, this.depth + 1, this.mnemonic, this.provider);
     }
@@ -23218,7 +23218,7 @@ class HDNodeVoidWallet extends VoidSigner {
                 path += "'";
             }
         }
-        const { IR, IL } = ser_I(index, this.chainCode, this.publicKey, null);
+        const { IR , IL  } = ser_I(index, this.chainCode, this.publicKey, null);
         const Ki = SigningKey.addPoints(IL, this.publicKey, true);
         const address = computeAddress(Ki);
         return new HDNodeVoidWallet(_guard, address, Ki, this.fingerprint, hexlify(IR), path, index, this.depth + 1, this.provider);
@@ -23300,19 +23300,19 @@ class Wallet extends BaseWallet {
         };
         return encryptKeystoreJsonSync(account, password);
     }
-    static #fromAccount(account) {
-        assertArgument(account, "invalid JSON wallet", "json", "[ REDACTED ]");
-        if ("mnemonic" in account && account.mnemonic && account.mnemonic.locale === "en") {
-            const mnemonic = Mnemonic.fromEntropy(account.mnemonic.entropy);
-            const wallet = HDNodeWallet.fromMnemonic(mnemonic, account.mnemonic.path);
-            if (wallet.address === account.address && wallet.privateKey === account.privateKey) {
+    static #fromAccount(account1) {
+        assertArgument(account1, "invalid JSON wallet", "json", "[ REDACTED ]");
+        if ("mnemonic" in account1 && account1.mnemonic && account1.mnemonic.locale === "en") {
+            const mnemonic1 = Mnemonic.fromEntropy(account1.mnemonic.entropy);
+            const wallet = HDNodeWallet.fromMnemonic(mnemonic1, account1.mnemonic.path);
+            if (wallet.address === account1.address && wallet.privateKey === account1.privateKey) {
                 return wallet;
             }
             console.log("WARNING: JSON mismatch address/privateKey != mnemonic; fallback onto private key");
         }
-        const wallet = new Wallet(account.privateKey);
-        assertArgument(wallet.address === account.address, "address/privateKey mismatch", "json", "[ REDACTED ]");
-        return wallet;
+        const wallet1 = new Wallet(account1.privateKey);
+        assertArgument(wallet1.address === account1.address, "address/privateKey mismatch", "json", "[ REDACTED ]");
+        return wallet1;
     }
     static async fromEncryptedJson(json, password, progress) {
         let account = null;
@@ -23607,13 +23607,13 @@ var ethers = Object.freeze({
     zeroPadBytes: zeroPadBytes,
     zeroPadValue: zeroPadValue
 });
-var t = {};
+var t1 = {};
 function e(t, e) {
     "boolean" == typeof e && (e = {
         forever: e
     }), this._originalTimeouts = JSON.parse(JSON.stringify(t)), this._timeouts = t, this._options = e || {}, this._maxRetryTime = e && e.maxRetryTime || 1 / 0, this._fn = null, this._errors = [], this._attempts = 1, this._operationTimeout = null, this._operationTimeoutCb = null, this._timeout = null, this._operationStart = null, this._timer = null, this._options.forever && (this._cachedTimeouts = this._timeouts.slice(0));
 }
-var i = e;
+var i8 = e;
 e.prototype.reset = function() {
     this._attempts = 1, this._timeouts = this._originalTimeouts.slice(0);
 }, e.prototype.stop = function() {
@@ -23656,7 +23656,7 @@ e.prototype.reset = function() {
     }
     return e;
 }, function(t) {
-    var e = i;
+    var e = i8;
     t.operation = function(i) {
         var r = t.timeouts(i);
         return new e(r, {
@@ -23696,9 +23696,9 @@ e.prototype.reset = function() {
             }).bind(e, u), e[s].options = i;
         }
     };
-}(t);
-var r = t, o = r.createTimeout, n1 = r.operation, s = r.timeouts, u = r.wrap;
-const e1 = Object.prototype.toString, t1 = new Set([
+}(t1);
+var r = t1, o4 = r.createTimeout, n1 = r.operation, s = r.timeouts, u = r.wrap;
+const e1 = Object.prototype.toString, t2 = new Set([
     "network error",
     "Failed to fetch",
     "NetworkError when attempting to fetch resource.",
@@ -23710,11 +23710,11 @@ const e1 = Object.prototype.toString, t1 = new Set([
 ]);
 function r1(r) {
     var o;
-    return !(!r || (o = r, "[object Error]" !== e1.call(o)) || "TypeError" !== r.name || "string" != typeof r.message) && ("Load failed" === r.message ? void 0 === r.stack : t1.has(r.message));
+    return !(!r || (o = r, "[object Error]" !== e1.call(o)) || "TypeError" !== r.name || "string" != typeof r.message) && ("Load failed" === r.message ? void 0 === r.stack : t2.has(r.message));
 }
-class o1 extends Error {
+class o5 extends Error {
     constructor(r){
-        super(), r instanceof Error ? (this.originalError = r, { message: r } = r) : (this.originalError = new Error(r), this.originalError.stack = this.stack), this.name = "AbortError", this.message = r;
+        super(), r instanceof Error ? (this.originalError = r, { message: r  } = r) : (this.originalError = new Error(r), this.originalError.stack = this.stack), this.name = "AbortError", this.message = r;
     }
 }
 const e2 = (r, t, o)=>{
@@ -23737,24 +23737,24 @@ async function s1(s, n) {
         };
         c.attempt(async (r)=>{
             try {
-                const t = await s(r);
-                h(), i(t);
-            } catch (s) {
+                const t1 = await s(r);
+                h(), i(t1);
+            } catch (s1) {
                 try {
-                    if (!(s instanceof Error)) throw new TypeError(`Non-error was thrown: "${s}". You should only throw errors.`);
-                    if (s instanceof o1) throw s.originalError;
-                    if (s instanceof TypeError && !r1(s)) throw s;
-                    if (e2(s, r, n), await n.shouldRetry(s) || (c.stop(), a(s)), await n.onFailedAttempt(s), !c.retry(s)) throw c.mainError();
-                } catch (t) {
-                    e2(t, r, n), h(), a(t);
+                    if (!(s1 instanceof Error)) throw new TypeError(`Non-error was thrown: "${s1}". You should only throw errors.`);
+                    if (s1 instanceof o5) throw s1.originalError;
+                    if (s1 instanceof TypeError && !r1(s1)) throw s1;
+                    if (e2(s1, r, n), await n.shouldRetry(s1) || (c.stop(), a(s1)), await n.onFailedAttempt(s1), !c.retry(s1)) throw c.mainError();
+                } catch (t2) {
+                    e2(t2, r, n), h(), a(t2);
                 }
             }
         });
     });
 }
-var r2 = "undefined" != typeof global ? global : "undefined" != typeof self ? self : "undefined" != typeof window ? window : {}, e3 = [], n2 = [], o2 = "undefined" != typeof Uint8Array ? Uint8Array : Array, i1 = !1;
+var r2 = "undefined" != typeof global ? global : "undefined" != typeof self ? self : "undefined" != typeof window ? window : {}, e3 = [], n2 = [], o6 = "undefined" != typeof Uint8Array ? Uint8Array : Array, i9 = !1;
 function u1() {
-    i1 = !0;
+    i9 = !0;
     for(var t = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", r = 0; r < 64; ++r)e3[r] = t[r], n2[t.charCodeAt(r)] = r;
     n2["-".charCodeAt(0)] = 62, n2["_".charCodeAt(0)] = 63;
 }
@@ -23764,7 +23764,7 @@ function a(t, r, n) {
 }
 function f1(t) {
     var r;
-    i1 || u1();
+    i9 || u1();
     for(var n = t.length, o = n % 3, f = "", s = [], c = 16383, h = 0, l = n - o; h < l; h += c)s.push(a(t, h, h + c > l ? l : h + c));
     return 1 === o ? (r = t[n - 1], f += e3[r >> 2], f += e3[r << 4 & 63], f += "==") : 2 === o && (r = (t[n - 2] << 8) + t[n - 1], f += e3[r >> 10], f += e3[r >> 4 & 63], f += e3[r << 2 & 63], f += "="), s.push(f), s.join("");
 }
@@ -23789,14 +23789,14 @@ var h = {}.toString, l = Array.isArray || function(t) {
     return "[object Array]" == h.call(t);
 };
 function p() {
-    return y.TYPED_ARRAY_SUPPORT ? 2147483647 : 1073741823;
+    return y1.TYPED_ARRAY_SUPPORT ? 2147483647 : 1073741823;
 }
 function g(t, r) {
     if (p() < r) throw new RangeError("Invalid typed array length");
-    return y.TYPED_ARRAY_SUPPORT ? (t = new Uint8Array(r)).__proto__ = y.prototype : (null === t && (t = new y(r)), t.length = r), t;
+    return y1.TYPED_ARRAY_SUPPORT ? (t = new Uint8Array(r)).__proto__ = y1.prototype : (null === t && (t = new y1(r)), t.length = r), t;
 }
-function y(t, r, e) {
-    if (!(y.TYPED_ARRAY_SUPPORT || this instanceof y)) return new y(t, r, e);
+function y1(t, r, e) {
+    if (!(y1.TYPED_ARRAY_SUPPORT || this instanceof y1)) return new y1(t, r, e);
     if ("number" == typeof t) {
         if ("string" == typeof r) throw new Error("If encoding is specified then the first argument must be a string");
         return v(this, t);
@@ -23809,11 +23809,11 @@ function d(t, r, e, n) {
         if (r.byteLength, e < 0 || r.byteLength < e) throw new RangeError("'offset' is out of bounds");
         if (r.byteLength < e + (n || 0)) throw new RangeError("'length' is out of bounds");
         r = void 0 === e && void 0 === n ? new Uint8Array(r) : void 0 === n ? new Uint8Array(r, e) : new Uint8Array(r, e, n);
-        y.TYPED_ARRAY_SUPPORT ? (t = r).__proto__ = y.prototype : t = m(t, r);
+        y1.TYPED_ARRAY_SUPPORT ? (t = r).__proto__ = y1.prototype : t = m1(t, r);
         return t;
     }(t, r, e, n) : "string" == typeof r ? function(t, r, e) {
         "string" == typeof e && "" !== e || (e = "utf8");
-        if (!y.isEncoding(e)) throw new TypeError('"encoding" must be a valid string encoding');
+        if (!y1.isEncoding(e)) throw new TypeError('"encoding" must be a valid string encoding');
         var n = 0 | A(r, e);
         t = g(t, n);
         var o = t.write(r, e);
@@ -23821,12 +23821,12 @@ function d(t, r, e, n) {
         return t;
     }(t, r, e) : function(t, r) {
         if (E(r)) {
-            var e = 0 | b1(r.length);
+            var e = 0 | b2(r.length);
             return 0 === (t = g(t, e)).length || r.copy(t, 0, 0, e), t;
         }
         if (r) {
-            if ("undefined" != typeof ArrayBuffer && r.buffer instanceof ArrayBuffer || "length" in r) return "number" != typeof r.length || (n = r.length) != n ? g(t, 0) : m(t, r);
-            if ("Buffer" === r.type && l(r.data)) return m(t, r.data);
+            if ("undefined" != typeof ArrayBuffer && r.buffer instanceof ArrayBuffer || "length" in r) return "number" != typeof r.length || (n = r.length) != n ? g(t, 0) : m1(t, r);
+            if ("Buffer" === r.type && l(r.data)) return m1(t, r.data);
         }
         var n;
         throw new TypeError("First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.");
@@ -23837,16 +23837,16 @@ function w(t) {
     if (t < 0) throw new RangeError('"size" argument must not be negative');
 }
 function v(t, r) {
-    if (w(r), t = g(t, r < 0 ? 0 : 0 | b1(r)), !y.TYPED_ARRAY_SUPPORT) for(var e = 0; e < r; ++e)t[e] = 0;
+    if (w(r), t = g(t, r < 0 ? 0 : 0 | b2(r)), !y1.TYPED_ARRAY_SUPPORT) for(var e = 0; e < r; ++e)t[e] = 0;
     return t;
 }
-function m(t, r) {
-    var e = r.length < 0 ? 0 : 0 | b1(r.length);
+function m1(t, r) {
+    var e = r.length < 0 ? 0 : 0 | b2(r.length);
     t = g(t, e);
     for(var n = 0; n < e; n += 1)t[n] = 255 & r[n];
     return t;
 }
-function b1(t) {
+function b2(t) {
     if (t >= p()) throw new RangeError("Attempt to allocate Buffer larger than maximum size: 0x" + p().toString(16) + " bytes");
     return 0 | t;
 }
@@ -23882,7 +23882,7 @@ function A(t, r) {
             r = ("" + r).toLowerCase(), n = !0;
     }
 }
-function R(t, r, e) {
+function R1(t, r, e) {
     var n = !1;
     if ((void 0 === r || r < 0) && (r = 0), r > this.length) return "";
     if ((void 0 === e || e > this.length) && (e = this.length), e <= 0) return "";
@@ -23894,7 +23894,7 @@ function R(t, r, e) {
         case "utf-8":
             return C(this, r, e);
         case "ascii":
-            return j(this, r, e);
+            return j4(this, r, e);
         case "latin1":
         case "binary":
             return M(this, r, e);
@@ -23923,8 +23923,8 @@ function _(t, r, e, n, o) {
         if (!o) return -1;
         e = 0;
     }
-    if ("string" == typeof r && (r = y.from(r, n)), E(r)) return 0 === r.length ? -1 : S2(t, r, e, n, o);
-    if ("number" == typeof r) return r &= 255, y.TYPED_ARRAY_SUPPORT && "function" == typeof Uint8Array.prototype.indexOf ? o ? Uint8Array.prototype.indexOf.call(t, r, e) : Uint8Array.prototype.lastIndexOf.call(t, r, e) : S2(t, [
+    if ("string" == typeof r && (r = y1.from(r, n)), E(r)) return 0 === r.length ? -1 : S2(t, r, e, n, o);
+    if ("number" == typeof r) return r &= 255, y1.TYPED_ARRAY_SUPPORT && "function" == typeof Uint8Array.prototype.indexOf ? o ? Uint8Array.prototype.indexOf.call(t, r, e) : Uint8Array.prototype.lastIndexOf.call(t, r, e) : S2(t, [
         r
     ], e, n, o);
     throw new TypeError("val must be string, number or Buffer");
@@ -23969,16 +23969,16 @@ function T(t, r, e, n) {
 function O(t, r, e, n) {
     return Q(Z(r, t.length - e), t, e, n);
 }
-function I(t, r, e, n) {
+function I1(t, r, e, n) {
     return Q(function(t) {
         for(var r = [], e = 0; e < t.length; ++e)r.push(255 & t.charCodeAt(e));
         return r;
     }(r), t, e, n);
 }
 function U(t, r, e, n) {
-    return I(t, r, e, n);
+    return I1(t, r, e, n);
 }
-function x(t, r, e, n) {
+function x1(t, r, e, n) {
     return Q(K(r), t, e, n);
 }
 function B(t, r, e, n) {
@@ -24017,19 +24017,19 @@ function C(t, r, e) {
         return e;
     }(n);
 }
-y.TYPED_ARRAY_SUPPORT = void 0 === r2.TYPED_ARRAY_SUPPORT || r2.TYPED_ARRAY_SUPPORT, p(), y.poolSize = 8192, y._augment = function(t) {
-    return t.__proto__ = y.prototype, t;
-}, y.from = function(t, r, e) {
+y1.TYPED_ARRAY_SUPPORT = void 0 === r2.TYPED_ARRAY_SUPPORT || r2.TYPED_ARRAY_SUPPORT, p(), y1.poolSize = 8192, y1._augment = function(t) {
+    return t.__proto__ = y1.prototype, t;
+}, y1.from = function(t, r, e) {
     return d(null, t, r, e);
-}, y.TYPED_ARRAY_SUPPORT && (y.prototype.__proto__ = Uint8Array.prototype, y.__proto__ = Uint8Array, "undefined" != typeof Symbol && Symbol.species && y[Symbol.species]), y.alloc = function(t, r, e) {
+}, y1.TYPED_ARRAY_SUPPORT && (y1.prototype.__proto__ = Uint8Array.prototype, y1.__proto__ = Uint8Array, "undefined" != typeof Symbol && Symbol.species && y1[Symbol.species]), y1.alloc = function(t, r, e) {
     return function(t, r, e, n) {
         return w(r), r <= 0 ? g(t, r) : void 0 !== e ? "string" == typeof n ? g(t, r).fill(e, n) : g(t, r).fill(e) : g(t, r);
     }(null, t, r, e);
-}, y.allocUnsafe = function(t) {
+}, y1.allocUnsafe = function(t) {
     return v(null, t);
-}, y.allocUnsafeSlow = function(t) {
+}, y1.allocUnsafeSlow = function(t) {
     return v(null, t);
-}, y.isBuffer = W, y.compare = function(t, r) {
+}, y1.isBuffer = W, y1.compare = function(t, r) {
     if (!E(t) || !E(r)) throw new TypeError("Arguments must be Buffers");
     if (t === r) return 0;
     for(var e = t.length, n = r.length, o = 0, i = Math.min(e, n); o < i; ++o)if (t[o] !== r[o]) {
@@ -24037,7 +24037,7 @@ y.TYPED_ARRAY_SUPPORT = void 0 === r2.TYPED_ARRAY_SUPPORT || r2.TYPED_ARRAY_SUPP
         break;
     }
     return e < n ? -1 : n < e ? 1 : 0;
-}, y.isEncoding = function(t) {
+}, y1.isEncoding = function(t) {
     switch(String(t).toLowerCase()){
         case "hex":
         case "utf8":
@@ -24054,43 +24054,43 @@ y.TYPED_ARRAY_SUPPORT = void 0 === r2.TYPED_ARRAY_SUPPORT || r2.TYPED_ARRAY_SUPP
         default:
             return !1;
     }
-}, y.concat = function(t, r) {
+}, y1.concat = function(t, r) {
     if (!l(t)) throw new TypeError('"list" argument must be an Array of Buffers');
-    if (0 === t.length) return y.alloc(0);
+    if (0 === t.length) return y1.alloc(0);
     var e;
     if (void 0 === r) for(r = 0, e = 0; e < t.length; ++e)r += t[e].length;
-    var n = y.allocUnsafe(r), o = 0;
+    var n = y1.allocUnsafe(r), o = 0;
     for(e = 0; e < t.length; ++e){
         var i = t[e];
         if (!E(i)) throw new TypeError('"list" argument must be an Array of Buffers');
         i.copy(n, o), o += i.length;
     }
     return n;
-}, y.byteLength = A, y.prototype._isBuffer = !0, y.prototype.swap16 = function() {
+}, y1.byteLength = A, y1.prototype._isBuffer = !0, y1.prototype.swap16 = function() {
     var t = this.length;
     if (t % 2 != 0) throw new RangeError("Buffer size must be a multiple of 16-bits");
     for(var r = 0; r < t; r += 2)P(this, r, r + 1);
     return this;
-}, y.prototype.swap32 = function() {
+}, y1.prototype.swap32 = function() {
     var t = this.length;
     if (t % 4 != 0) throw new RangeError("Buffer size must be a multiple of 32-bits");
     for(var r = 0; r < t; r += 4)P(this, r, r + 3), P(this, r + 1, r + 2);
     return this;
-}, y.prototype.swap64 = function() {
+}, y1.prototype.swap64 = function() {
     var t = this.length;
     if (t % 8 != 0) throw new RangeError("Buffer size must be a multiple of 64-bits");
     for(var r = 0; r < t; r += 8)P(this, r, r + 7), P(this, r + 1, r + 6), P(this, r + 2, r + 5), P(this, r + 3, r + 4);
     return this;
-}, y.prototype.toString = function() {
+}, y1.prototype.toString = function() {
     var t = 0 | this.length;
-    return 0 === t ? "" : 0 === arguments.length ? C(this, 0, t) : R.apply(this, arguments);
-}, y.prototype.equals = function(t) {
+    return 0 === t ? "" : 0 === arguments.length ? C(this, 0, t) : R1.apply(this, arguments);
+}, y1.prototype.equals = function(t) {
     if (!E(t)) throw new TypeError("Argument must be a Buffer");
-    return this === t || 0 === y.compare(this, t);
-}, y.prototype.inspect = function() {
+    return this === t || 0 === y1.compare(this, t);
+}, y1.prototype.inspect = function() {
     var t = "";
     return this.length > 0 && (t = this.toString("hex", 0, 50).match(/.{2}/g).join(" "), this.length > 50 && (t += " ... ")), "<Buffer " + t + ">";
-}, y.prototype.compare = function(t, r, e, n, o) {
+}, y1.prototype.compare = function(t, r, e, n, o) {
     if (!E(t)) throw new TypeError("Argument must be a Buffer");
     if (void 0 === r && (r = 0), void 0 === e && (e = t ? t.length : 0), void 0 === n && (n = 0), void 0 === o && (o = this.length), r < 0 || e > t.length || n < 0 || o > this.length) throw new RangeError("out of range index");
     if (n >= o && r >= e) return 0;
@@ -24102,13 +24102,13 @@ y.TYPED_ARRAY_SUPPORT = void 0 === r2.TYPED_ARRAY_SUPPORT || r2.TYPED_ARRAY_SUPP
         break;
     }
     return i < u ? -1 : u < i ? 1 : 0;
-}, y.prototype.includes = function(t, r, e) {
+}, y1.prototype.includes = function(t, r, e) {
     return -1 !== this.indexOf(t, r, e);
-}, y.prototype.indexOf = function(t, r, e) {
+}, y1.prototype.indexOf = function(t, r, e) {
     return _(this, t, r, e, !0);
-}, y.prototype.lastIndexOf = function(t, r, e) {
+}, y1.prototype.lastIndexOf = function(t, r, e) {
     return _(this, t, r, e, !1);
-}, y.prototype.write = function(t, r, e, n) {
+}, y1.prototype.write = function(t, r, e, n) {
     if (void 0 === r) n = "utf8", e = this.length, r = 0;
     else if (void 0 === e && "string" == typeof r) n = r, e = this.length, r = 0;
     else {
@@ -24125,12 +24125,12 @@ y.TYPED_ARRAY_SUPPORT = void 0 === r2.TYPED_ARRAY_SUPPORT || r2.TYPED_ARRAY_SUPP
         case "utf-8":
             return O(this, t, r, e);
         case "ascii":
-            return I(this, t, r, e);
+            return I1(this, t, r, e);
         case "latin1":
         case "binary":
             return U(this, t, r, e);
         case "base64":
-            return x(this, t, r, e);
+            return x1(this, t, r, e);
         case "ucs2":
         case "ucs-2":
         case "utf16le":
@@ -24140,14 +24140,14 @@ y.TYPED_ARRAY_SUPPORT = void 0 === r2.TYPED_ARRAY_SUPPORT || r2.TYPED_ARRAY_SUPP
             if (i) throw new TypeError("Unknown encoding: " + n);
             n = ("" + n).toLowerCase(), i = !0;
     }
-}, y.prototype.toJSON = function() {
+}, y1.prototype.toJSON = function() {
     return {
         type: "Buffer",
         data: Array.prototype.slice.call(this._arr || this, 0)
     };
 };
 var Y = 4096;
-function j(t, r, e) {
+function j4(t, r, e) {
     var n = "";
     e = Math.min(t.length, e);
     for(var o = r; o < e; ++o)n += String.fromCharCode(127 & t[o]);
@@ -24196,84 +24196,84 @@ function H(t, r, e, n, o) {
 function V(t, r, e, n, o) {
     return o || $(t, 0, e, 8), c(t, r, e, n, 52, 8), e + 8;
 }
-y.prototype.slice = function(t, r) {
+y1.prototype.slice = function(t, r) {
     var e, n = this.length;
-    if ((t = ~~t) < 0 ? (t += n) < 0 && (t = 0) : t > n && (t = n), (r = void 0 === r ? n : ~~r) < 0 ? (r += n) < 0 && (r = 0) : r > n && (r = n), r < t && (r = t), y.TYPED_ARRAY_SUPPORT) (e = this.subarray(t, r)).__proto__ = y.prototype;
+    if ((t = ~~t) < 0 ? (t += n) < 0 && (t = 0) : t > n && (t = n), (r = void 0 === r ? n : ~~r) < 0 ? (r += n) < 0 && (r = 0) : r > n && (r = n), r < t && (r = t), y1.TYPED_ARRAY_SUPPORT) (e = this.subarray(t, r)).__proto__ = y1.prototype;
     else {
         var o = r - t;
-        e = new y(o, void 0);
+        e = new y1(o, void 0);
         for(var i = 0; i < o; ++i)e[i] = this[i + t];
     }
     return e;
-}, y.prototype.readUIntLE = function(t, r, e) {
+}, y1.prototype.readUIntLE = function(t, r, e) {
     t |= 0, r |= 0, e || z(t, r, this.length);
     for(var n = this[t], o = 1, i = 0; ++i < r && (o *= 256);)n += this[t + i] * o;
     return n;
-}, y.prototype.readUIntBE = function(t, r, e) {
+}, y1.prototype.readUIntBE = function(t, r, e) {
     t |= 0, r |= 0, e || z(t, r, this.length);
     for(var n = this[t + --r], o = 1; r > 0 && (o *= 256);)n += this[t + --r] * o;
     return n;
-}, y.prototype.readUInt8 = function(t, r) {
+}, y1.prototype.readUInt8 = function(t, r) {
     return r || z(t, 1, this.length), this[t];
-}, y.prototype.readUInt16LE = function(t, r) {
+}, y1.prototype.readUInt16LE = function(t, r) {
     return r || z(t, 2, this.length), this[t] | this[t + 1] << 8;
-}, y.prototype.readUInt16BE = function(t, r) {
+}, y1.prototype.readUInt16BE = function(t, r) {
     return r || z(t, 2, this.length), this[t] << 8 | this[t + 1];
-}, y.prototype.readUInt32LE = function(t, r) {
+}, y1.prototype.readUInt32LE = function(t, r) {
     return r || z(t, 4, this.length), (this[t] | this[t + 1] << 8 | this[t + 2] << 16) + 16777216 * this[t + 3];
-}, y.prototype.readUInt32BE = function(t, r) {
+}, y1.prototype.readUInt32BE = function(t, r) {
     return r || z(t, 4, this.length), 16777216 * this[t] + (this[t + 1] << 16 | this[t + 2] << 8 | this[t + 3]);
-}, y.prototype.readIntLE = function(t, r, e) {
+}, y1.prototype.readIntLE = function(t, r, e) {
     t |= 0, r |= 0, e || z(t, r, this.length);
     for(var n = this[t], o = 1, i = 0; ++i < r && (o *= 256);)n += this[t + i] * o;
     return n >= (o *= 128) && (n -= Math.pow(2, 8 * r)), n;
-}, y.prototype.readIntBE = function(t, r, e) {
+}, y1.prototype.readIntBE = function(t, r, e) {
     t |= 0, r |= 0, e || z(t, r, this.length);
     for(var n = r, o = 1, i = this[t + --n]; n > 0 && (o *= 256);)i += this[t + --n] * o;
     return i >= (o *= 128) && (i -= Math.pow(2, 8 * r)), i;
-}, y.prototype.readInt8 = function(t, r) {
+}, y1.prototype.readInt8 = function(t, r) {
     return r || z(t, 1, this.length), 128 & this[t] ? -1 * (255 - this[t] + 1) : this[t];
-}, y.prototype.readInt16LE = function(t, r) {
+}, y1.prototype.readInt16LE = function(t, r) {
     r || z(t, 2, this.length);
     var e = this[t] | this[t + 1] << 8;
     return 32768 & e ? 4294901760 | e : e;
-}, y.prototype.readInt16BE = function(t, r) {
+}, y1.prototype.readInt16BE = function(t, r) {
     r || z(t, 2, this.length);
     var e = this[t + 1] | this[t] << 8;
     return 32768 & e ? 4294901760 | e : e;
-}, y.prototype.readInt32LE = function(t, r) {
+}, y1.prototype.readInt32LE = function(t, r) {
     return r || z(t, 4, this.length), this[t] | this[t + 1] << 8 | this[t + 2] << 16 | this[t + 3] << 24;
-}, y.prototype.readInt32BE = function(t, r) {
+}, y1.prototype.readInt32BE = function(t, r) {
     return r || z(t, 4, this.length), this[t] << 24 | this[t + 1] << 16 | this[t + 2] << 8 | this[t + 3];
-}, y.prototype.readFloatLE = function(t, r) {
+}, y1.prototype.readFloatLE = function(t, r) {
     return r || z(t, 4, this.length), s2(this, t, !0, 23, 4);
-}, y.prototype.readFloatBE = function(t, r) {
+}, y1.prototype.readFloatBE = function(t, r) {
     return r || z(t, 4, this.length), s2(this, t, !1, 23, 4);
-}, y.prototype.readDoubleLE = function(t, r) {
+}, y1.prototype.readDoubleLE = function(t, r) {
     return r || z(t, 8, this.length), s2(this, t, !0, 52, 8);
-}, y.prototype.readDoubleBE = function(t, r) {
+}, y1.prototype.readDoubleBE = function(t, r) {
     return r || z(t, 8, this.length), s2(this, t, !1, 52, 8);
-}, y.prototype.writeUIntLE = function(t, r, e, n) {
+}, y1.prototype.writeUIntLE = function(t, r, e, n) {
     (t = +t, r |= 0, e |= 0, n) || N1(this, t, r, e, Math.pow(2, 8 * e) - 1, 0);
     var o = 1, i = 0;
     for(this[r] = 255 & t; ++i < e && (o *= 256);)this[r + i] = t / o & 255;
     return r + e;
-}, y.prototype.writeUIntBE = function(t, r, e, n) {
+}, y1.prototype.writeUIntBE = function(t, r, e, n) {
     (t = +t, r |= 0, e |= 0, n) || N1(this, t, r, e, Math.pow(2, 8 * e) - 1, 0);
     var o = e - 1, i = 1;
     for(this[r + o] = 255 & t; --o >= 0 && (i *= 256);)this[r + o] = t / i & 255;
     return r + e;
-}, y.prototype.writeUInt8 = function(t, r, e) {
-    return t = +t, r |= 0, e || N1(this, t, r, 1, 255, 0), y.TYPED_ARRAY_SUPPORT || (t = Math.floor(t)), this[r] = 255 & t, r + 1;
-}, y.prototype.writeUInt16LE = function(t, r, e) {
-    return t = +t, r |= 0, e || N1(this, t, r, 2, 65535, 0), y.TYPED_ARRAY_SUPPORT ? (this[r] = 255 & t, this[r + 1] = t >>> 8) : F(this, t, r, !0), r + 2;
-}, y.prototype.writeUInt16BE = function(t, r, e) {
-    return t = +t, r |= 0, e || N1(this, t, r, 2, 65535, 0), y.TYPED_ARRAY_SUPPORT ? (this[r] = t >>> 8, this[r + 1] = 255 & t) : F(this, t, r, !1), r + 2;
-}, y.prototype.writeUInt32LE = function(t, r, e) {
-    return t = +t, r |= 0, e || N1(this, t, r, 4, 4294967295, 0), y.TYPED_ARRAY_SUPPORT ? (this[r + 3] = t >>> 24, this[r + 2] = t >>> 16, this[r + 1] = t >>> 8, this[r] = 255 & t) : q(this, t, r, !0), r + 4;
-}, y.prototype.writeUInt32BE = function(t, r, e) {
-    return t = +t, r |= 0, e || N1(this, t, r, 4, 4294967295, 0), y.TYPED_ARRAY_SUPPORT ? (this[r] = t >>> 24, this[r + 1] = t >>> 16, this[r + 2] = t >>> 8, this[r + 3] = 255 & t) : q(this, t, r, !1), r + 4;
-}, y.prototype.writeIntLE = function(t, r, e, n) {
+}, y1.prototype.writeUInt8 = function(t, r, e) {
+    return t = +t, r |= 0, e || N1(this, t, r, 1, 255, 0), y1.TYPED_ARRAY_SUPPORT || (t = Math.floor(t)), this[r] = 255 & t, r + 1;
+}, y1.prototype.writeUInt16LE = function(t, r, e) {
+    return t = +t, r |= 0, e || N1(this, t, r, 2, 65535, 0), y1.TYPED_ARRAY_SUPPORT ? (this[r] = 255 & t, this[r + 1] = t >>> 8) : F(this, t, r, !0), r + 2;
+}, y1.prototype.writeUInt16BE = function(t, r, e) {
+    return t = +t, r |= 0, e || N1(this, t, r, 2, 65535, 0), y1.TYPED_ARRAY_SUPPORT ? (this[r] = t >>> 8, this[r + 1] = 255 & t) : F(this, t, r, !1), r + 2;
+}, y1.prototype.writeUInt32LE = function(t, r, e) {
+    return t = +t, r |= 0, e || N1(this, t, r, 4, 4294967295, 0), y1.TYPED_ARRAY_SUPPORT ? (this[r + 3] = t >>> 24, this[r + 2] = t >>> 16, this[r + 1] = t >>> 8, this[r] = 255 & t) : q(this, t, r, !0), r + 4;
+}, y1.prototype.writeUInt32BE = function(t, r, e) {
+    return t = +t, r |= 0, e || N1(this, t, r, 4, 4294967295, 0), y1.TYPED_ARRAY_SUPPORT ? (this[r] = t >>> 24, this[r + 1] = t >>> 16, this[r + 2] = t >>> 8, this[r + 3] = 255 & t) : q(this, t, r, !1), r + 4;
+}, y1.prototype.writeIntLE = function(t, r, e, n) {
     if (t = +t, r |= 0, !n) {
         var o = Math.pow(2, 8 * e - 1);
         N1(this, t, r, e, o - 1, -o);
@@ -24281,7 +24281,7 @@ y.prototype.slice = function(t, r) {
     var i = 0, u = 1, a = 0;
     for(this[r] = 255 & t; ++i < e && (u *= 256);)t < 0 && 0 === a && 0 !== this[r + i - 1] && (a = 1), this[r + i] = (t / u | 0) - a & 255;
     return r + e;
-}, y.prototype.writeIntBE = function(t, r, e, n) {
+}, y1.prototype.writeIntBE = function(t, r, e, n) {
     if (t = +t, r |= 0, !n) {
         var o = Math.pow(2, 8 * e - 1);
         N1(this, t, r, e, o - 1, -o);
@@ -24289,25 +24289,25 @@ y.prototype.slice = function(t, r) {
     var i = e - 1, u = 1, a = 0;
     for(this[r + i] = 255 & t; --i >= 0 && (u *= 256);)t < 0 && 0 === a && 0 !== this[r + i + 1] && (a = 1), this[r + i] = (t / u | 0) - a & 255;
     return r + e;
-}, y.prototype.writeInt8 = function(t, r, e) {
-    return t = +t, r |= 0, e || N1(this, t, r, 1, 127, -128), y.TYPED_ARRAY_SUPPORT || (t = Math.floor(t)), t < 0 && (t = 255 + t + 1), this[r] = 255 & t, r + 1;
-}, y.prototype.writeInt16LE = function(t, r, e) {
-    return t = +t, r |= 0, e || N1(this, t, r, 2, 32767, -32768), y.TYPED_ARRAY_SUPPORT ? (this[r] = 255 & t, this[r + 1] = t >>> 8) : F(this, t, r, !0), r + 2;
-}, y.prototype.writeInt16BE = function(t, r, e) {
-    return t = +t, r |= 0, e || N1(this, t, r, 2, 32767, -32768), y.TYPED_ARRAY_SUPPORT ? (this[r] = t >>> 8, this[r + 1] = 255 & t) : F(this, t, r, !1), r + 2;
-}, y.prototype.writeInt32LE = function(t, r, e) {
-    return t = +t, r |= 0, e || N1(this, t, r, 4, 2147483647, -2147483648), y.TYPED_ARRAY_SUPPORT ? (this[r] = 255 & t, this[r + 1] = t >>> 8, this[r + 2] = t >>> 16, this[r + 3] = t >>> 24) : q(this, t, r, !0), r + 4;
-}, y.prototype.writeInt32BE = function(t, r, e) {
-    return t = +t, r |= 0, e || N1(this, t, r, 4, 2147483647, -2147483648), t < 0 && (t = 4294967295 + t + 1), y.TYPED_ARRAY_SUPPORT ? (this[r] = t >>> 24, this[r + 1] = t >>> 16, this[r + 2] = t >>> 8, this[r + 3] = 255 & t) : q(this, t, r, !1), r + 4;
-}, y.prototype.writeFloatLE = function(t, r, e) {
+}, y1.prototype.writeInt8 = function(t, r, e) {
+    return t = +t, r |= 0, e || N1(this, t, r, 1, 127, -128), y1.TYPED_ARRAY_SUPPORT || (t = Math.floor(t)), t < 0 && (t = 255 + t + 1), this[r] = 255 & t, r + 1;
+}, y1.prototype.writeInt16LE = function(t, r, e) {
+    return t = +t, r |= 0, e || N1(this, t, r, 2, 32767, -32768), y1.TYPED_ARRAY_SUPPORT ? (this[r] = 255 & t, this[r + 1] = t >>> 8) : F(this, t, r, !0), r + 2;
+}, y1.prototype.writeInt16BE = function(t, r, e) {
+    return t = +t, r |= 0, e || N1(this, t, r, 2, 32767, -32768), y1.TYPED_ARRAY_SUPPORT ? (this[r] = t >>> 8, this[r + 1] = 255 & t) : F(this, t, r, !1), r + 2;
+}, y1.prototype.writeInt32LE = function(t, r, e) {
+    return t = +t, r |= 0, e || N1(this, t, r, 4, 2147483647, -2147483648), y1.TYPED_ARRAY_SUPPORT ? (this[r] = 255 & t, this[r + 1] = t >>> 8, this[r + 2] = t >>> 16, this[r + 3] = t >>> 24) : q(this, t, r, !0), r + 4;
+}, y1.prototype.writeInt32BE = function(t, r, e) {
+    return t = +t, r |= 0, e || N1(this, t, r, 4, 2147483647, -2147483648), t < 0 && (t = 4294967295 + t + 1), y1.TYPED_ARRAY_SUPPORT ? (this[r] = t >>> 24, this[r + 1] = t >>> 16, this[r + 2] = t >>> 8, this[r + 3] = 255 & t) : q(this, t, r, !1), r + 4;
+}, y1.prototype.writeFloatLE = function(t, r, e) {
     return H(this, t, r, !0, e);
-}, y.prototype.writeFloatBE = function(t, r, e) {
+}, y1.prototype.writeFloatBE = function(t, r, e) {
     return H(this, t, r, !1, e);
-}, y.prototype.writeDoubleLE = function(t, r, e) {
+}, y1.prototype.writeDoubleLE = function(t, r, e) {
     return V(this, t, r, !0, e);
-}, y.prototype.writeDoubleBE = function(t, r, e) {
+}, y1.prototype.writeDoubleBE = function(t, r, e) {
     return V(this, t, r, !1, e);
-}, y.prototype.copy = function(t, r, e, n) {
+}, y1.prototype.copy = function(t, r, e, n) {
     if (e || (e = 0), n || 0 === n || (n = this.length), r >= t.length && (r = t.length), r || (r = 0), n > 0 && n < e && (n = e), n === e) return 0;
     if (0 === t.length || 0 === this.length) return 0;
     if (r < 0) throw new RangeError("targetStart out of bounds");
@@ -24316,24 +24316,24 @@ y.prototype.slice = function(t, r) {
     n > this.length && (n = this.length), t.length - r < n - e && (n = t.length - r + e);
     var o, i = n - e;
     if (this === t && e < r && r < n) for(o = i - 1; o >= 0; --o)t[o + r] = this[o + e];
-    else if (i < 1e3 || !y.TYPED_ARRAY_SUPPORT) for(o = 0; o < i; ++o)t[o + r] = this[o + e];
+    else if (i < 1e3 || !y1.TYPED_ARRAY_SUPPORT) for(o = 0; o < i; ++o)t[o + r] = this[o + e];
     else Uint8Array.prototype.set.call(t, this.subarray(e, e + i), r);
     return i;
-}, y.prototype.fill = function(t, r, e, n) {
+}, y1.prototype.fill = function(t, r, e, n) {
     if ("string" == typeof t) {
         if ("string" == typeof r ? (n = r, r = 0, e = this.length) : "string" == typeof e && (n = e, e = this.length), 1 === t.length) {
             var o = t.charCodeAt(0);
             o < 256 && (t = o);
         }
         if (void 0 !== n && "string" != typeof n) throw new TypeError("encoding must be a string");
-        if ("string" == typeof n && !y.isEncoding(n)) throw new TypeError("Unknown encoding: " + n);
+        if ("string" == typeof n && !y1.isEncoding(n)) throw new TypeError("Unknown encoding: " + n);
     } else "number" == typeof t && (t &= 255);
     if (r < 0 || this.length < r || this.length < e) throw new RangeError("Out of range index");
     if (e <= r) return this;
     var i;
     if (r >>>= 0, e = void 0 === e ? this.length : e >>> 0, t || (t = 0), "number" == typeof t) for(i = r; i < e; ++i)this[i] = t;
     else {
-        var u = E(t) ? t : Z(new y(t, n).toString()), a = u.length;
+        var u = E(t) ? t : Z(new y1(t, n).toString()), a = u.length;
         for(i = 0; i < e - r; ++i)this[i + r] = u[i % a];
     }
     return this;
@@ -24385,10 +24385,10 @@ function Z(t, r) {
 function K(t) {
     return function(t) {
         var r, e, a, f, s, c;
-        i1 || u1();
+        i9 || u1();
         var h = t.length;
         if (h % 4 > 0) throw new Error("Invalid string. Length must be a multiple of 4");
-        s = "=" === t[h - 2] ? 2 : "=" === t[h - 1] ? 1 : 0, c = new o2(3 * h / 4 - s), a = s > 0 ? h - 4 : h;
+        s = "=" === t[h - 2] ? 2 : "=" === t[h - 1] ? 1 : 0, c = new o6(3 * h / 4 - s), a = s > 0 ? h - 4 : h;
         var l = 0;
         for(r = 0, e = 0; r < a; r += 4, e += 3)f = n2[t.charCodeAt(r)] << 18 | n2[t.charCodeAt(r + 1)] << 12 | n2[t.charCodeAt(r + 2)] << 6 | n2[t.charCodeAt(r + 3)], c[l++] = f >> 16 & 255, c[l++] = f >> 8 & 255, c[l++] = 255 & f;
         return 2 === s ? (f = n2[t.charCodeAt(r)] << 2 | n2[t.charCodeAt(r + 1)] >> 4, c[l++] = 255 & f) : 1 === s && (f = n2[t.charCodeAt(r)] << 10 | n2[t.charCodeAt(r + 1)] << 4 | n2[t.charCodeAt(r + 2)] >> 2, c[l++] = f >> 8 & 255, c[l++] = 255 & f), c;
@@ -24723,7 +24723,7 @@ function Mt(t, r) {
     if ("[object RegExp]" == Object.prototype.toString.call(r)) return r.test(t);
     try {
         if (t instanceof r) return !0;
-    } catch (t) {}
+    } catch (t1) {}
     return !Error.isPrototypeOf(r) && !0 === r.call({}, t);
 }
 function kt(t, r, e, n) {
@@ -24733,8 +24733,8 @@ function kt(t, r, e, n) {
         var r;
         try {
             t();
-        } catch (t) {
-            r = t;
+        } catch (t1) {
+            r = t1;
         }
         return r;
     }(r), n = (e && e.name ? " (" + e.name + ")." : ".") + (n ? " " + n : "."), t && !o && Dt(o, e, "Missing expected exception" + n);
@@ -24746,21 +24746,21 @@ async function Lt(t, r) {
         const e = Number(t.replace("f0", ""));
         Tt(!isNaN(e), `minerID must be "f0{number}". Actual value: "${t}"`);
         return (await r.getPeerData(e)).peerID;
-    } catch (r) {
+    } catch (r1) {
         throw Error(`Error fetching peer ID from contract for miner ${t}.`, {
-            cause: r
+            cause: r1
         });
     }
 }
-async function zt(r, e, { maxAttempts: n = 5 } = {}) {
-    const o = await async function(r, { maxAttempts: e = 5 } = {}) {
+async function zt(r, e, { maxAttempts: n = 5  } = {}) {
+    const o = await async function(r, { maxAttempts: e = 5  } = {}) {
         try {
             return (await s1(()=>r("Filecoin.ChainHead", []), {
                 retries: e
             })).Cids;
-        } catch (t) {
+        } catch (t1) {
             throw new Error("Error fetching ChainHead.", {
-                cause: t
+                cause: t1
             });
         }
     }(e, {
@@ -24774,9 +24774,9 @@ async function zt(r, e, { maxAttempts: n = 5 } = {}) {
             retries: n
         });
         return Tt.strictEqual(typeof i.PeerId, "string", `PeerId must be a string, is of type "${typeof i.PeerId}"`), i.PeerId;
-    } catch (t) {
+    } catch (t1) {
         throw new Error(`Error fetching PeerID for miner ${r}.`, {
-            cause: t
+            cause: t1
         });
     }
 }
@@ -24811,13 +24811,13 @@ class Nt extends Error {
 const Ft = "0x14183aD016Ddc83D638425D6328009aa390339Ce", qt = [
     "function getPeerData(uint64 minerID) view returns (tuple(string peerID, bytes signature))"
 ];
-async function $t(t, r, { maxAttempts: e = 5, rpcUrl: n, rpcAuth: o, rpcFn: i, signal: u } = {}) {
+async function $t(t, r, { maxAttempts: e = 5 , rpcUrl: n , rpcAuth: o , rpcFn: i , signal: u  } = {}) {
     try {
         Tt.ok(!(n && i), "Cannot provide both rpcUrl and rpcFn");
         const [a, f] = await Promise.all([
             Lt(t, r),
             zt(t, i ?? async function(t, r) {
-                return await async function(t, r, e, { rpcAuth: n, fetch: o = globalThis.fetch, signal: i } = {}) {
+                return await async function(t, r, e, { rpcAuth: n , fetch: o = globalThis.fetch , signal: i  } = {}) {
                     let u = {
                         "content-type": "application/json",
                         accepts: "application/json"
@@ -24857,9 +24857,9 @@ async function $t(t, r, { maxAttempts: e = 5, rpcUrl: n, rpcAuth: o, rpcFn: i, s
             peerId: f,
             source: "minerInfo"
         };
-    } catch (r) {
+    } catch (r1) {
         throw Error(`Error fetching index provider PeerID for miner ${t}.`, {
-            cause: r
+            cause: r1
         });
     }
 }
