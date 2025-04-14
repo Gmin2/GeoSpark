@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@layer base {
+    :root {
+      --chart-1: 142 76% 36%; /* Green */
+      --chart-2: 221 83% 53%; /* Blue */
+      --chart-3: 262 83% 58%; /* Purple */
+      --chart-4: 43 74% 66%;  /* Yellow */
+      --chart-5: 0 84% 60%;   /* Red */
+    }
+   
+    .dark {
+      --chart-1: 142 70% 45%; /* Green */
+      --chart-2: 221 70% 55%; /* Blue */
+      --chart-3: 262 83% 68%; /* Purple */
+      --chart-4: 43 90% 70%;  /* Yellow */
+      --chart-5: 0 84% 60%;   /* Red */
+    }
+  }
