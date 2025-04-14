@@ -1,0 +1,3 @@
+[submodule "simple-subnet-api"]
+	path = simple-subnet-api
+	url = https://github.com/Gmin2/simple-subnet-api.git
