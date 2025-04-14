@@ -75,7 +75,7 @@ async function runGeoFilecoinCheck() {
     // Submit measurement
     await submitMeasurement({
       success: generalResult.success,
-      location
+      location,
     });
     
     // Now test each provider
