@@ -21,23 +21,11 @@ The project consists of two main components:
 
 1. **Geo-Filecoin Checker Subnet**: A Zinnia-based checker module that runs tests and collects geographic performance data
 2. **Simple-Subnet API**: A modified version of the Checker Network API that stores and serves geographic performance data
+3. **Dashboard**: A web application that displays geographic performance data and recommendations
 
-### Directory Structure
+- A Visual Representation of how the subnet works
 
-```
-GeoSpark/
-├── lib/                # Core functionality
-│   ├── config.js       # Configuration settings
-│   ├── filecoin-rpc.js # Filecoin RPC client
-│   ├── geo.js          # Geographic location utilities
-│   ├── measure.js      # Performance measurement logic
-│   ├── submit.js       # Data submission to API
-│   └── ...
-├── test/               # Test files
-├── main.js             # Main execution loop
-├── simple-subnet-api/  # API server (submodule)
-└── README.md
-```
+![alt text](apps/src/assets/architecture.png)
 
 ## How It Works
 
@@ -131,7 +119,15 @@ curl "http://localhost:8080/geo-filecoin/stats?continent=Asia"
 curl "http://localhost:8080/geo-filecoin/stats?minerId=f01234567"
 ```
 
-## Customization
+### Dashboard
+
+Once the api is running, you can access the dashboard at http://localhost:5173/
+
+![alt text](apps/src/assets/map.png)
+![alt text](apps/src/assets/performance.png)
+![alt text](apps/src/assets/latency.png)
+
+## Customization  
 
 ### Config Options
 
