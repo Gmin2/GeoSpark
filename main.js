@@ -56,21 +56,7 @@ async function runGeoFilecoinCheck() {
     } else {
       Zinnia.activity.error(`Failed to retrieve content: ${generalResult.error}`);
     }
-    
-    // Add general test to results
-    testResults.push({
-      minerId: null,
-      peerId: null,
-      cid: config.testCid,
-      success: generalResult.success,
-      latency: generalResult.totalTime,
-      ttfb: generalResult.ttfb,
-      size: generalResult.contentSize,
-      throughput: generalResult.throughput,
-      error: generalResult.error,
-      location,
-      timestamp: new Date().toISOString()
-    });
+  
     
     // Submit measurement
     await submitMeasurement({
@@ -118,7 +104,10 @@ async function runGeoFilecoinCheck() {
       await submitMeasurement({
         success: result.success,
         location,
-        minerId: provider.minerId
+        minerId: provider.minerId,
+        latency: result.totalTime,
+        ttfb: result.ttfb,
+        throughput: result.throughput
       });
     }
     
@@ -133,6 +122,7 @@ async function runGeoFilecoinCheck() {
     // Generate visualization and recommendations
     const visualizationData = generateVisualizationData(testResults);
     const globalStats = visualizationData.global;
+    // console.log("visualizationData", visualizationData);
     
     Zinnia.activity.info(
       `Tests completed: ${globalStats.total}, ` +
@@ -166,8 +156,7 @@ async function runPeriodicChecks() {
   while (true) {
     const success = await runGeoFilecoinCheck();
     
-    // Wait before next check
-    const waitTime = success ? config.checkInterval : 60 * 1000; // 1 minute on error
+    const waitTime = config.simulation.enabled ? 10 * 1000 : config.checkInterval;
     console.log(`Waiting ${waitTime / 1000} seconds before next check...`);
     await new Promise(resolve => setTimeout(resolve, waitTime));
   }

@@ -144,7 +144,7 @@ export function GeographicMap({ data }: GeographicMapProps) {
       </div>
       
       {/* Display continent stats in cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-50">
         {continentStats.map(({ continent, successRate, avgLatency }) => (
           <Card key={continent} className="p-4">
             <h3 className="font-medium">{continent}</h3>

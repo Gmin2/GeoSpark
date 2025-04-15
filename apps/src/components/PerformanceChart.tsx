@@ -137,7 +137,7 @@ export function PerformanceCharts({ data, successRateData }: PerformanceChartsPr
   }
   
   return (
-    <Tabs defaultValue="trends">
+    <Tabs defaultValue="continents">
       <TabsList className="grid w-full grid-cols-3 mb-6">
         <TabsTrigger value="trends">Success Rate Trends</TabsTrigger>
         <TabsTrigger value="continents">Latency by Region</TabsTrigger>
