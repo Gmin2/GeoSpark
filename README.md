@@ -121,7 +121,12 @@ curl "http://localhost:8080/geo-filecoin/stats?minerId=f01234567"
 
 ### Dashboard
 
-Once the api is running, you can access the dashboard at http://localhost:5173/
+Once the api is running, you can access the dashboard at http://localhost:5173/ by runnig
+```bash
+cd apps
+pnpm install
+pnpm run dev
+```
 
 ![alt text](apps/src/assets/map.png)
 ![alt text](apps/src/assets/performance.png)
