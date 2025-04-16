@@ -36,6 +36,9 @@ The project consists of two main components:
 5. **Recommendation Generation**: Based on the collected data, it generates provider recommendations
 6. **Data Submission**: Measurements are submitted to the Simple-Subnet API for storage and trend analysis
 
+A visual demo can be found here
+https://youtu.be/asfmWL5eh4Q
+
 ## Metrics Collected
 
 - **Success Rate**: Percentage of successful retrievals
